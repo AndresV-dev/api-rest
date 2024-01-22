@@ -7,12 +7,12 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.nio.CharBuffer;
-import java.util.Arrays;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -31,30 +31,27 @@ public class UserService {
     }
 
     public User login(CredentialsDto credentialsDto) {
-       try {
-           User user;
-           if(credentialsDto.getEmail() == null && credentialsDto.getUsername() == null)
-               return new User("Please give a Username or Email for logging in");
+       User user;
 
-           if(credentialsDto.getUsername() != null) // validate Username
-               user = userRepository.findByUsername(credentialsDto.getUsername()).orElseThrow(() -> new UsernameNotFoundException("User Doesn't Exist"));
-           else // Validate Email if Username is null
-              user = userRepository.findByEmail(credentialsDto.getEmail()).orElseThrow(() -> new UsernameNotFoundException("User Doesn't Exist"));
+       if(credentialsDto.getEmail() == null && credentialsDto.getUsername() == null)
+           return new User("Please give a Username or Email for logging in");
 
-           if(passwordEncoder.matches(CharBuffer.wrap(credentialsDto.getPassword()), user.getPassword())){
-               return user;
-           }
-       }catch (Exception e) {
-           return new User(e.getMessage());
+       if(credentialsDto.getUsername() != null) // validate Username
+           user = userRepository.findByUsername(credentialsDto.getUsername()).orElseThrow(() -> new UsernameNotFoundException("User Doesn't Exist"));
+       else // Validate Email if Username is null
+          user = userRepository.findByEmail(credentialsDto.getEmail()).orElseThrow(() -> new UsernameNotFoundException("User Doesn't Exist"));
+
+       if(passwordEncoder.matches(CharBuffer.wrap(credentialsDto.getPassword()), user.getPassword())){
+           return user;
        }
-       return new User("Invalid Password");
+       throw new BadCredentialsException("Wrong username or password");
     }
 
     public User register(User userData) {
         Optional<User> userOptional = userRepository.findByUsername(userData.getUsername());
 
         if(userOptional.isPresent()){
-            return new User("User already exists");
+            throw new UsernameNotFoundException("Username Already Exists");
         }
 
         userData.setPassword(passwordEncoder.encode(CharBuffer.wrap(userData.getPassword())));
