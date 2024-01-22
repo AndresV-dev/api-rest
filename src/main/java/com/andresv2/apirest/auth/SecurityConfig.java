@@ -35,12 +35,11 @@ public class SecurityConfig {
                 .addFilterBefore(new JwtAuthFilter(UserAuthProvider), BasicAuthenticationFilter.class)
                 .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers( "/v1/auth/**")
-                        .permitAll()
+                        .requestMatchers( "/v1/auth/**").permitAll()
+                        .requestMatchers("/error").permitAll()
                         .anyRequest()
                         .authenticated());
         return http.build();
-
     }
 
     private CorsConfigurationSource corsConfigurationSource() {

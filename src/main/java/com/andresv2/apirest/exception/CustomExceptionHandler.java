@@ -1,9 +1,9 @@
 package com.andresv2.apirest.exception;
 
+import com.andresv2.apirest.dto.ErrorResponseDto;
 import com.andresv2.apirest.service.UserService;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.mysql.cj.jdbc.exceptions.MysqlDataTruncation;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -15,10 +15,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
-@RequestMapping
 @RestControllerAdvice
 public class CustomExceptionHandler {
 
@@ -27,7 +25,7 @@ public class CustomExceptionHandler {
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<Object> handleBadCredentialsException(BadCredentialsException ex, WebRequest request){
-        ErrorResponse error = new ErrorResponse(400,"Bad Credentials", ex.getMessage(), request.getDescription(false));
+        ErrorResponseDto error = new ErrorResponseDto(400,"Bad Credentials", ex.getMessage(), request.getDescription(false));
         return new ResponseEntity<>(error , HttpStatus.UNAUTHORIZED);
     }
 
@@ -38,21 +36,21 @@ public class CustomExceptionHandler {
         ex.getBindingResult().getAllErrors().forEach(error -> {
             errors.add(((FieldError) error).getField() + error.getDefaultMessage());
         });
-        ErrorResponse error = new ErrorResponse(ex.getStatusCode().value(),ex.getBody().getDetail(), errors, request.getDescription(false));
+        ErrorResponseDto error = new ErrorResponseDto(ex.getStatusCode().value(),ex.getBody().getDetail(), errors, request.getDescription(false));
         return new ResponseEntity<>(error , HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(MysqlDataTruncation.class)
-    public ResponseEntity<Object> handleMysqlDataTruncation(MysqlDataTruncation ex, WebRequest request){
+    public ResponseEntity<Object> handleTokenExpiredException(TokenExpiredException ex, WebRequest request){
         errorPart =  ex.getMessage().split(":");
-        ErrorResponse error = new ErrorResponse(ex.getErrorCode(),errorPart[0], errorPart[1], request.getDescription(false));
+        ErrorResponseDto error = new ErrorResponseDto(ex.hashCode(), errorPart[0], errorPart[1].trim(), request.getDescription(false));
         return new ResponseEntity<>(error , HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleException(Exception ex, WebRequest request){
         errorPart = ex.getMessage().split(":");
-        ErrorResponse error = new ErrorResponse(500 ,errorPart[0], errorPart[1], request.getDescription(false));
+        ErrorResponseDto error = new ErrorResponseDto(500 ,HttpStatus.INTERNAL_SERVER_ERROR.name(), errorPart[0], request.getDescription(false));
         return new ResponseEntity<>(error , HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
