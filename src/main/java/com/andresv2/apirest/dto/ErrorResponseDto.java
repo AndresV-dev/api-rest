@@ -1,4 +1,4 @@
-package com.andresv2.apirest.exception;
+package com.andresv2.apirest.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
@@ -8,7 +8,7 @@ import java.util.Date;
 
 @Data
 @NoArgsConstructor
-public class ErrorResponse {
+public class ErrorResponseDto {
 
     private Integer code;
     private String type;
@@ -18,10 +18,10 @@ public class ErrorResponse {
     private String path;
 
 
-    public ErrorResponse(Integer code, String type, Object message, String path) {
+    public ErrorResponseDto(Integer code, String type, Object message, String path) {
         this.code = code;
         this.type = type;
         this.message = message;
-        this.path = path.replace("uri=", "");
+        this.path = path != null ? path.replace("uri=", "") : "";
     }
 }
