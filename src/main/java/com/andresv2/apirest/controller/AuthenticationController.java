@@ -20,7 +20,7 @@ import java.net.URI;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/v1/auth")
+@RequestMapping("auth")
 public class AuthenticationController {
 
     @Autowired
