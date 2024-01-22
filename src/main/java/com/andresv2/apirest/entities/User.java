@@ -2,8 +2,10 @@ package com.andresv2.apirest.entities;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,8 +28,10 @@ public class User {
     private String name;
     private String lastname;
     private Integer age;
+    @NotEmpty(message = " cannot be null or empty")
     private String username;
-    @JsonIgnore
+    @JsonIgnoreProperties
+    @NotEmpty(message = " cannot be null or empty")
     private String password;
     private String email;
     private String json;

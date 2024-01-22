@@ -4,7 +4,10 @@ import com.andresv2.apirest.auth.UserAuthProvider;
 import com.andresv2.apirest.dto.CredentialsDto;
 import com.andresv2.apirest.entities.User;
 import com.andresv2.apirest.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -41,7 +44,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<User> register(@RequestBody User userData){
+    public ResponseEntity<User> register(@RequestBody @Valid User userData){
         User user = userService.register(userData);
         user.setToken(userAuthProvider.createToken(userData.getUsername()));
         return ResponseEntity.created(URI.create("/users/" + user.getId())).body(user);
