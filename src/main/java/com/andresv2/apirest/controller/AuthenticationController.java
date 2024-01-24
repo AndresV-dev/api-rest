@@ -6,17 +6,16 @@ import com.andresv2.apirest.entities.User;
 import com.andresv2.apirest.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.HashMap;
 
 @RequiredArgsConstructor
 @RestController
@@ -48,5 +47,21 @@ public class AuthenticationController {
         User user = userService.register(userData);
         user.setToken(userAuthProvider.createToken(userData.getUsername()));
         return ResponseEntity.created(URI.create("/users/" + user.getId())).body(user);
+    }
+
+    @PostMapping("/update/{uuid}")
+    public ResponseEntity<User> updateUser(@PathVariable("uuid") String uuid, @RequestBody @Valid HashMap<String, Object> userData){
+        User userUpdated = userService.update(uuid, userData);
+        userUpdated.setToken(userAuthProvider.createToken(userUpdated.getUsername()));
+        return ResponseEntity.ok(userUpdated);
+    }
+
+    @PostMapping("/update/password/{uuid}")
+    public ResponseEntity<User> updatePassword(@PathVariable("uuid") String uuid, @RequestBody @Valid HashMap<String, Object> passInfo){
+        boolean updated = userService.updatePassword(uuid, (String) passInfo.get("newPassword"), (String) passInfo.get("oldPassword"));
+        if(updated)
+            return ResponseEntity.ok().body(new User("Password updated successfully"));
+
+        return ResponseEntity.badRequest().body(new User("Password update failed"));
     }
 }
