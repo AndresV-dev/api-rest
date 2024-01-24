@@ -13,6 +13,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.nio.CharBuffer;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -28,6 +30,18 @@ public class UserService {
     public User findByUsername(String  username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Unknown User [" + username + "]"));
+    }
+
+    public User findByUuid(String uuid) {
+        return userRepository.findByUuid(uuid).orElseThrow(() -> {throw new UsernameNotFoundException("User with UUID " + uuid + " not found");});
+    }
+
+    public User findById(long id) {
+        return userRepository.findById(id).orElseThrow(() -> {throw new UsernameNotFoundException("User with ID " + id + " not found");});
+    }
+
+    public List<User> findAll() {
+        return userRepository.findAll();
     }
 
     public User login(CredentialsDto credentialsDto) {
@@ -58,5 +72,29 @@ public class UserService {
         userData.setUuid(java.util.UUID.randomUUID().toString());
 
         return userRepository.save(userData);
+    }
+
+    public User update(String uuid,HashMap<String, Object> userData) {
+        return userRepository.update(uuid, getQueryParameters(userData, "SET"));
+    }
+
+    public boolean updatePassword(String uuid, String newPassword, String oldPassword) {
+        return userRepository.updatePassword(uuid, passwordEncoder.encode(CharBuffer.wrap(newPassword)), passwordEncoder.encode(CharBuffer.wrap(oldPassword))); //<T, ID>
+    }
+
+    private String getQueryParameters(HashMap<String, Object> data, String type){
+        final boolean[] firstLap = {true};
+        data.put(type, "");
+
+        data.forEach((key, value) -> {
+            if(firstLap[0]) {
+                data.put(type , key + " = " + value);
+                firstLap[0] = false;
+            }else{
+                data.put(type, data.get(type) + ", " + key + " = " + value); //<T, ID>
+            }
+        });
+
+        return data.get(type).toString(); //<T, ID>
     }
 }
