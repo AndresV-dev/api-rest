@@ -4,6 +4,7 @@ import com.andresv2.apirest.auth.UserAuthProvider;
 import com.andresv2.apirest.dto.CredentialsDto;
 import com.andresv2.apirest.entities.User;
 import com.andresv2.apirest.service.UserService;
+import com.andresv2.apirest.util.AuthUtilities;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.Response;
@@ -19,7 +20,7 @@ import java.util.HashMap;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("auth")
+@RequestMapping("v1/auth")
 public class AuthenticationController {
 
     @Autowired
@@ -49,11 +50,30 @@ public class AuthenticationController {
         return ResponseEntity.created(URI.create("/users/" + user.getId())).body(user);
     }
 
-    @PostMapping("/update/{uuid}")
-    public ResponseEntity<User> updateUser(@PathVariable("uuid") String uuid, @RequestBody @Valid HashMap<String, Object> userData){
+    @PutMapping("/update/{uuid}")
+    public ResponseEntity<User> updateUser(@PathVariable("uuid") String uuid, @RequestBody HashMap<String, Object> userData){
         User userUpdated = userService.update(uuid, userData);
         userUpdated.setToken(userAuthProvider.createToken(userUpdated.getUsername()));
         return ResponseEntity.ok(userUpdated);
+    }
+
+    @GetMapping("/delete/{uuid}")
+    public ResponseEntity<User> deleteUser(@PathVariable("uuid") String uuid){
+        // first you have to get user, and create a token, if the token recently generated and the token on request is the same, then you can delete the user
+        User userToDelete = userService.findByUuid(uuid);
+        String tokenUserDeleator = AuthUtilities.getCurrentUserToken();
+        userToDelete.setToken(userAuthProvider.createToken(userToDelete.getUsername()));
+
+        if(userToDelete.getToken().equals(tokenUserDeleator)) {
+            boolean userDeleted = userService.delete(uuid);
+
+            if(userDeleted)
+                return ResponseEntity.ok(new User("User deleted successfully"));
+            else
+                return ResponseEntity.badRequest().body(new User("User delete failed"));
+        }
+
+        return ResponseEntity.badRequest().body(new User("Only and ADMIN or Yourself can delete this User"));
     }
 
     @PostMapping("/update/password/{uuid}")
