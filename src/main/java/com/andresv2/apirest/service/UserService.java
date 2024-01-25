@@ -82,6 +82,10 @@ public class UserService {
         return userRepository.updatePassword(uuid, passwordEncoder.encode(CharBuffer.wrap(newPassword)), passwordEncoder.encode(CharBuffer.wrap(oldPassword))); //<T, ID>
     }
 
+    public boolean delete(String uuid) {
+        return userRepository.deleteByUuid(uuid); //<T, ID>
+    }
+
     private String getQueryParameters(HashMap<String, Object> data, String type){
         final boolean[] firstLap = {true};
         data.put(type, "");

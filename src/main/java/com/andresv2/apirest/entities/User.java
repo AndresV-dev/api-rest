@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -24,7 +25,6 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String uuid;
-    private String role;
     private String name;
     private String lastname;
     private Integer age;
@@ -39,8 +39,11 @@ public class User {
     private String token;
     @Transient
     private String error;
+    @Transient
+    private List<Rol> roles;
 
     public User(String error){
     	this.error = error;
     }
+
 }

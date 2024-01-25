@@ -2,6 +2,7 @@ package com.andresv2.apirest.controller;
 
 import com.andresv2.apirest.entities.User;
 import com.andresv2.apirest.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,6 +12,7 @@ import java.util.List;
 @RequestMapping(value = "v1/user")
 public class UserController {
 
+    @Autowired
     private UserService userService;
 
     @GetMapping("id/{id}")
@@ -23,8 +25,8 @@ public class UserController {
         return ResponseEntity.ok(userService.findByUuid(uuidUser));
     }
 
-    @PostMapping("list")
-    public ResponseEntity<List<User>> getUserList(){
+    @GetMapping("list")
+    public ResponseEntity<List<User>> getUserListSorted(){
         return ResponseEntity.ok().body(userService.findAll());
     }
 }
