@@ -7,11 +7,11 @@ import com.andresv2.apirest.service.UserService;
 import com.andresv2.apirest.util.AuthUtilities;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,6 +23,7 @@ import java.util.HashMap;
 @RequestMapping("v1/auth")
 public class AuthenticationController {
 
+    Logger logger = LoggerFactory.getLogger(AuthenticationController.class);
     @Autowired
     private UserService userService;
     @Autowired
@@ -37,6 +38,7 @@ public class AuthenticationController {
                 return ResponseEntity.status(403).body(user);
 
             user.setToken(userAuthProvider.createToken(userData.getUsername()));
+            logger.info((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
             return ResponseEntity.ok(user);
         }catch (UsernameNotFoundException e){
             return ResponseEntity.status(403).body(new User(e.getCause().getMessage()));
