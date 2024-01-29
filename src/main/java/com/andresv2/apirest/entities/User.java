@@ -1,15 +1,13 @@
 package com.andresv2.apirest.entities;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -24,13 +22,13 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String uuid;
-    private String role;
     private String name;
+    private String role;
     private String lastname;
     private Integer age;
     @NotEmpty(message = " cannot be null or empty")
     private String username;
-    @JsonIgnoreProperties
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY, value = "password") // only is accessible on the creation of user, on jsonresponse is not shown
     @NotEmpty(message = " cannot be null or empty")
     private String password;
     private String email;
@@ -39,8 +37,11 @@ public class User {
     private String token;
     @Transient
     private String error;
+    @Transient
+    private List<Rol> roles;
 
     public User(String error){
     	this.error = error;
     }
+
 }
