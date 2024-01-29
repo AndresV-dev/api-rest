@@ -1,6 +1,5 @@
 package com.andresv2.apirest.service;
 
-import com.andresv2.apirest.entities.Rol;
 import com.andresv2.apirest.entities.User;
 import com.andresv2.apirest.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,9 +28,7 @@ public class UserDetailService implements UserDetailsService {
         User user = userRepository.findByUsername(username).orElseThrow(() -> {throw new UsernameNotFoundException("User with username " + username + " not found");});
 //if you're implementing UserDetails you wouldn't need to call this method and instead return the User as it is
         Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
-        for (Rol role : user.getRoles()){
-            grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_"+role.getName()));
-        }
+        grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + user.getRole()));
 
         return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), grantedAuthorities);
     }

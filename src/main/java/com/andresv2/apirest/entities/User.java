@@ -7,7 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.util.List;
+
+import java.util.Date;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -22,8 +23,10 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String uuid;
-    private String name;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "America/Mexico_city")
+    private Date created_at;
     private String role;
+    private String name;
     private String lastname;
     private Integer age;
     @NotEmpty(message = " cannot be null or empty")
@@ -33,12 +36,16 @@ public class User {
     private String password;
     private String email;
     private String json;
+/* Actually is not required, because the user only can have one role, and it is saved on String role key
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "role", referencedColumnName = "role")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"}) // avoid circular dependency, avoid infinite loop, avoid infinite recursion, avoid infinite loop, avoid infinite recursion, avoid infinite loop, avoid infinite recursion, avoid infinite loop, avoid infinite recursion, avoid infinite loop, avoid infinite recursion, avoid infinite loop, avoid infinite recursion, avoid infinite loo
+    private Role role;
+*/
     @Transient
     private String token;
     @Transient
     private String error;
-    @Transient
-    private List<Rol> roles;
 
     public User(String error){
     	this.error = error;
