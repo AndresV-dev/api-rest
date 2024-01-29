@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import java.util.Base64;
@@ -35,7 +36,7 @@ public class UserAuthProvider {
 
     public String createToken(String username) {
         Date now = new Date();
-        Date validity = new Date(now.getTime() + 3600000);
+        Date validity = new Date(now.getTime() + 86400000); // expiration time 3600000 = 1 Hour ,86400000 = 24 Hours
 
         return JWT.create()
                 .withSubject(username)
@@ -51,6 +52,6 @@ public class UserAuthProvider {
 
         User user = userService.findByUsername(decodedJWT.getSubject());
 
-        return new UsernamePasswordAuthenticationToken(user, null, Collections.emptyList());
+        return new UsernamePasswordAuthenticationToken(user, null,  Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole())));
     }
 }
