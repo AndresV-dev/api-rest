@@ -23,11 +23,12 @@ public class User {
     private Long id;
     private String uuid;
     private String name;
+    private String role;
     private String lastname;
     private Integer age;
     @NotEmpty(message = " cannot be null or empty")
     private String username;
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY, value = "password")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY, value = "password") // only is accessible on the creation of user, on jsonresponse is not shown
     @NotEmpty(message = " cannot be null or empty")
     private String password;
     private String email;
