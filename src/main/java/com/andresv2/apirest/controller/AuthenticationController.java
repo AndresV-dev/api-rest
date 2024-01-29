@@ -5,8 +5,11 @@ import com.andresv2.apirest.dto.CredentialsDto;
 import com.andresv2.apirest.entities.User;
 import com.andresv2.apirest.service.UserService;
 import com.andresv2.apirest.util.AuthUtilities;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,10 +56,21 @@ public class AuthenticationController {
     }
 
     @PutMapping("/update/{uuid}")
-    public ResponseEntity<User> updateUser(@PathVariable("uuid") String uuid, @RequestBody HashMap<String, Object> userData){
+    public ResponseEntity<?> updateUser(@PathVariable("uuid") String uuid, @RequestBody HashMap<String, Object> userData) throws JsonProcessingException {
+        boolean tryUpdatePassword = false;
+        JSONObject response = new JSONObject();
+
+        if(userData.containsKey("password")){
+            userData.remove("password");
+            response.put("info", "All info has been Updated but password, password needs to be updated from somewhere else.");
+        }
         User userUpdated = userService.update(uuid, userData);
-        userUpdated.setToken(userAuthProvider.createToken(userUpdated.getUsername()));
-        return ResponseEntity.ok(userUpdated);
+
+        ObjectMapper obj =  new ObjectMapper();
+        response.put("user", new JSONObject(obj.writeValueAsString(userUpdated)));
+        response.put("token", userAuthProvider.createToken(userUpdated.getUsername()));
+
+        return ResponseEntity.ok(response.toString());
     }
 
     @GetMapping("/delete/{uuid}")
