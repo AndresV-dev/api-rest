@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -20,7 +21,7 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     Optional<User> findByUuid(String uuid); //<T, ID>
     Optional<User> findById(Long id); //<T, ID>
     @Query(value = "UPDATE user u SET :setValues WHERE uuid = :uuid", nativeQuery = true)
-    User update(@Param("setValues") String setValues, @Param("uuid") String uuid);
+    User update(@Param("setValues") List<String> setValues, @Param("uuid") String uuid);
     @Query(value = "UPDATE user set password = :newPass where uuid = :uuid and password = :oldPass;", nativeQuery = true)
     boolean updatePassword(@Param("uuid") String uuid, @Param("newPass") String newPassword, @Param("oldPass") String oldPassword);
     @Query(value = "DELETE FROM user WHERE uuid = :uuid", nativeQuery = true)
