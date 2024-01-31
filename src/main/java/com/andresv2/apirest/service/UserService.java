@@ -3,13 +3,12 @@ package com.andresv2.apirest.service;
 import com.andresv2.apirest.dto.CredentialsDto;
 import com.andresv2.apirest.entities.User;
 import com.andresv2.apirest.repository.UserRepository;
-import jakarta.persistence.criteria.*;
+import com.andresv2.apirest.util.SearchUtils;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,7 +16,6 @@ import org.springframework.stereotype.Service;
 
 import java.nio.CharBuffer;
 import java.util.*;
-import java.util.Arrays;
 
 @RequiredArgsConstructor
 @Service
@@ -27,6 +25,8 @@ public class UserService {
     private UserRepository userRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private SearchUtils<User> searchUtils;
 
     public User findByUsername(String  username) {
         return userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("Unknown User [" + username + "]"));
@@ -61,7 +61,7 @@ public class UserService {
 
         // if the method have more filters like between or  greater than etc. we need to add the summary of sizes to size key Example size-> filters.put("size", equalsTo.length() + greaterThan.length() + between.length());
         filters.put("size", equalsTo.length()); // + between.length()
-        return userRepository.findAll(getQueryParameters(filters), pageable);
+        return userRepository.findAll(searchUtils.getQueryParameters(filters), pageable);
     }
 
     public User login(CredentialsDto credentialsDto) {
@@ -119,46 +119,4 @@ public class UserService {
         return userRepository.deleteByUuid(uuid); //<T, ID>
     }
 
-    private Specification<User> getQueryParameters(JSONObject data){
-
-        return (root, query, cb) -> {
-            Predicate[] predicates = new Predicate[data.getInt("size")];
-            final int[] i = {0};
-            if(data.has("equals")){
-                data.getJSONObject("equals").toMap().forEach((key, value) -> {
-                    predicates[i[0]] = cb.equal(root.get(key), value);
-                    i[0]++;
-                });
-            }
-
-            if(data.has("lessThanOrEqualTo")){// data Example
-                data.getJSONObject("lessThanOrEqualTo").toMap().forEach((key, value) -> predicates[i[0]] = cb.lessThanOrEqualTo(root.get(key), value.toString()));
-            }
-
-            if (data.has("greaterThanOrEqualTo")){// data Example { "}
-                data.getJSONObject("greaterThanOrEqualTo").toMap().forEach((key, value) -> {
-                    predicates[i[0]] = cb.greaterThanOrEqualTo(root.get(key), value.toString());
-                    i[0]++; //<T, ID>
-                });
-            }
-
-            if (data.has("like")){// data Example {"name": "example"}
-                data.getJSONObject("like").toMap().forEach((key, value) -> {
-                    predicates[i[0]] = cb.like(root.get(key), "%" + value + "%");
-                    i[0]++; //<T, ID>
-                });
-            }
-
-            if (data.has("between")){ // data Example {"keyBD": ["", ""]}
-                JSONObject between = (JSONObject) data.get("between");
-                between.toMap().forEach((key, value) -> {
-                    ArrayList<String> list = (ArrayList<String>) value;
-                    predicates[i[0]] = cb.between(root.get(key), list.get(0), list.get(1));
-                    i[0]++; //<T, ID>
-                });
-            }
-            query.where(predicates);
-            return query.getRestriction();
-        }; //<T, ID>
-    }
 }
