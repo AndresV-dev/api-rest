@@ -24,9 +24,7 @@ public class Product {
     private Double price;
     private Boolean discount;
     private String image;
-    @ManyToOne
-    @JoinColumn(name = "category_id", nullable = false)
-    private Category category;
+    private Integer category_id;
     private Integer stock;
     private Boolean active;
 }

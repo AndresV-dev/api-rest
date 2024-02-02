@@ -23,9 +23,9 @@ public class Category {
     private Long id;
     private String name;
     private String description;
-    @ManyToMany(mappedBy = "categories")
+    @Transient
     private List<Store> stores;
-    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
+    @Transient
     private List<Product> products;
     @Transient
     private String error;

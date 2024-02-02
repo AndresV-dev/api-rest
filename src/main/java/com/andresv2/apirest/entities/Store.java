@@ -2,6 +2,7 @@ package com.andresv2.apirest.entities;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,11 +22,13 @@ public class Store {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @NotEmpty(message = " cannot be null or empty")
     private String name;
+    @NotEmpty(message = " cannot be null or empty")
     private String description;
+    @NotEmpty(message = " cannot be null or empty")
     private String ramo; // technology, financial
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "store_category", joinColumns = @JoinColumn(name = "category_id"), inverseJoinColumns = @JoinColumn(name = "store_id"))
+    @Transient
     private List<Category> categories;
     @Transient
     private String error;

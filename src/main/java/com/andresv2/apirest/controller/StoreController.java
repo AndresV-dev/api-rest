@@ -22,7 +22,7 @@ public class StoreController {
     @Autowired
     private StoreService storeService;
 
-    @PostMapping("insert")
+    @PostMapping("register")
     public ResponseEntity<Store> insert(@Valid @RequestBody Store store){
         return ResponseEntity.ok().body(storeService.saveStore(store));
     }
@@ -43,13 +43,13 @@ public class StoreController {
         return ResponseEntity.ok().body(storeService.findAllStores(pageable).getContent());
     }
 
-    @GetMapping("list/filtered")
+    @PostMapping("list/filtered")
     public ResponseEntity<List<Store>> findStores(@RequestParam(value = "page", required = false) Integer page, @RequestParam(value = "size", required = false) Integer size, @RequestBody HashMap<String, Object> data){
         Pageable pageable = PageRequest.of(page!=null?page:0, size!=null?size:10, Sort.by("id").descending());
         return ResponseEntity.ok().body(storeService.findAllFilteredStores(pageable, new JSONObject(data)).getContent());
     }
 
-    @PostMapping("category/insert")
+    @PostMapping("category/register")
     public ResponseEntity<Category> insertCategory(@Valid @RequestBody Category category){
         return ResponseEntity.ok().body(storeService.saveCategory(category));
     }

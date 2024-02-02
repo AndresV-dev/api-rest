@@ -41,11 +41,9 @@ public class StoreService {
 //        JSONObject between = new JSONObject(); //only if filters have between option
         // Define Filters
         if (data.has("name")) equalsTo.put("name", data.getString("name"));
-        if (data.has("lastname")) equalsTo.put("lastname", data.getString("lastname"));
-        if (data.has("role")) equalsTo.put("role", data.getString("role"));
-        if (data.has("age")) equalsTo.put("age", data.getInt("age"));
-        if (data.has("username")) equalsTo.put("username", data.getString("username"));
-        if (data.has("email")) equalsTo.put("email", data.getString("email"));
+        if (data.has("description")) equalsTo.put("description", data.getString("description"));
+        if (data.has("ramo")) equalsTo.put("ramo", data.getString("ramo"));
+        if (data.has("category")) equalsTo.put("category", data.getString("category"));
 
         if(equalsTo.length() > 0) filters.put("equals", equalsTo);
 //        if(between.length() > 0) filters.put("between", between); //only if filters have between option
@@ -74,11 +72,7 @@ public class StoreService {
 //        JSONObject between = new JSONObject(); //only if filters have between option
         // Define Filters
         if (data.has("name")) equalsTo.put("name", data.getString("name"));
-        if (data.has("lastname")) equalsTo.put("lastname", data.getString("lastname"));
-        if (data.has("role")) equalsTo.put("role", data.getString("role"));
-        if (data.has("age")) equalsTo.put("age", data.getInt("age"));
-        if (data.has("username")) equalsTo.put("username", data.getString("username"));
-        if (data.has("email")) equalsTo.put("email", data.getString("email"));
+        if (data.has("description")) equalsTo.put("description", data.getString("description"));
 
         if(equalsTo.length() > 0) filters.put("equals", equalsTo);
 //        if(between.length() > 0) filters.put("between", between); //only if filters have between option
