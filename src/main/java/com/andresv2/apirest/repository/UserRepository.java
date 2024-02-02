@@ -26,6 +26,4 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     boolean updatePassword(@Param("uuid") String uuid, @Param("newPass") String newPassword, @Param("oldPass") String oldPassword);
     @Query(value = "DELETE FROM user WHERE uuid = :uuid", nativeQuery = true)
     boolean deleteByUuid (@Param("uuid") String uuid);
-    Page<User> findAll(Pageable pageable); //Search without filters
-    Page<User> findAll(Specification<User> specification, Pageable pageable); //Search with filters
 }
