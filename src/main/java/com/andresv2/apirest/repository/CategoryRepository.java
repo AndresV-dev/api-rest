@@ -10,5 +10,4 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Long>, JpaSpecificationExecutor<Category> {
-    Page<Category> findAll(Specification<Category> queryParameters, Pageable pageable);
 }

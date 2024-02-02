@@ -1,12 +1,14 @@
 package com.andresv2.apirest.util;
 
-import com.andresv2.apirest.entities.User;
 import jakarta.persistence.criteria.Predicate;
+import lombok.experimental.UtilityClass;
 import org.json.JSONObject;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 
+@Service
 public class SearchUtils<T> {
 
     public Specification<T> getQueryParameters(JSONObject data){

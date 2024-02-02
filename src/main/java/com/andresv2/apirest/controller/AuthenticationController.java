@@ -23,7 +23,7 @@ import java.util.HashMap;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("v1/auth")
+@RequestMapping("v1/auth/user")
 public class AuthenticationController {
 
     Logger logger = LoggerFactory.getLogger(AuthenticationController.class);
