@@ -1,7 +1,6 @@
 package com.andresv2.apirest.util;
 
 import jakarta.persistence.criteria.Predicate;
-import lombok.experimental.UtilityClass;
 import org.json.JSONObject;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;

@@ -24,8 +24,6 @@ public class Category {
     private String name;
     private String description;
     @Transient
-    private List<Store> stores;
-    @Transient
     private List<Product> products;
     @Transient
     private String error;

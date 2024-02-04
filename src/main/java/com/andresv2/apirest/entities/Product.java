@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -21,10 +22,11 @@ public class Product {
     private Long id;
     private String name;
     private String description;
+    private String genre;
     private Double price;
     private Boolean discount;
     private String image;
-    private Integer category_id;
+    private String category;
     private Integer stock;
     private Boolean active;
 }

@@ -1,7 +1,6 @@
 package com.andresv2.apirest.auth;
 
 import com.andresv2.apirest.dto.ErrorResponseDto;
-import com.andresv2.apirest.exception.CustomExceptionHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,7 +13,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.request.WebRequest;
 
 import java.io.IOException;
 
