@@ -1,7 +1,6 @@
 package com.andresv2.apirest.exception;
 
 import com.andresv2.apirest.dto.ErrorResponseDto;
-import com.andresv2.apirest.service.UserService;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.mysql.cj.jdbc.exceptions.MysqlDataTruncation;
 import org.slf4j.Logger;
