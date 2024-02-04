@@ -49,30 +49,4 @@ public class StoreController {
         return ResponseEntity.ok().body(storeService.findAllFilteredStores(pageable, new JSONObject(data)).getContent());
     }
 
-    @PostMapping("category/register")
-    public ResponseEntity<Category> insertCategory(@Valid @RequestBody Category category){
-        return ResponseEntity.ok().body(storeService.saveCategory(category));
-    }
-
-    @PostMapping("category/update")
-    public ResponseEntity<Category> updateCategory(@Valid @RequestBody Category category){
-        return ResponseEntity.ok().body(storeService.saveCategory(category));
-    }
-
-    @GetMapping("category/id/{id}")
-    public ResponseEntity<Category> findCategoryById(@PathVariable("id") Long id){
-        return ResponseEntity.ok().body(storeService.findCategoryById(id));
-    }
-
-    @GetMapping("category/list")
-    public ResponseEntity<List<Category>> findCategoriesList(@RequestParam(value = "page", required = false) Integer page, @RequestParam(value = "size", required = false) Integer size){
-        Pageable pageable = PageRequest.of(page!=null?page:0, size!=null?size:10, Sort.by("id").descending());
-        return ResponseEntity.ok().body(storeService.findAllCategories(pageable).getContent());
-    }
-
-    @GetMapping("category/list/filtered")
-    public ResponseEntity<List<Category>> findCategoriesListFiltered(@RequestParam(value = "page", required = false) Integer page, @RequestParam(value = "size", required = false) Integer size, @RequestBody HashMap<String, Object> data){
-        Pageable pageable = PageRequest.of(page!=null?page:0, size!=null?size:10, Sort.by("id").descending());
-        return ResponseEntity.ok().body(storeService.findAllFilteredCategories(pageable, new JSONObject(data)).getContent());
-    }
 }

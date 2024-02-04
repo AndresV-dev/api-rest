@@ -1,7 +1,6 @@
 package com.andresv2.apirest.controller;
 
 import com.andresv2.apirest.entities.Product;
-import com.andresv2.apirest.entities.Store;
 import com.andresv2.apirest.service.ProductService;
 import jakarta.validation.Valid;
 import org.json.JSONObject;
