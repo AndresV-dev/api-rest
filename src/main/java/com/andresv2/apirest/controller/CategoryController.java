@@ -4,7 +4,6 @@ import com.andresv2.apirest.entities.Category;
 import com.andresv2.apirest.repository.ProductRepository;
 import com.andresv2.apirest.service.CategoryService;
 import jakarta.validation.Valid;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -30,8 +29,8 @@ public class CategoryController {
     }
 
     @PostMapping("update")
-    public ResponseEntity<Category> updateCategory(@Valid @RequestBody Category category){
-        return ResponseEntity.ok().body(categoryService.saveCategory(category));
+    public ResponseEntity<Category> updateCategory(@Valid @RequestBody HashMap<String, Object> categoryData, @RequestParam("id") Long id){
+        return ResponseEntity.ok().body(categoryService.updateCategory(id, categoryData));
     }
 
     @GetMapping("id/{id}")
@@ -43,16 +42,5 @@ public class CategoryController {
     public ResponseEntity<List<Category>> findCategoriesList(@RequestParam(value = "page", required = false) Integer page, @RequestParam(value = "size", required = false) Integer size){
         Pageable pageable = PageRequest.of(page!=null?page:0, size!=null?size:10, Sort.by("id").descending());
         return ResponseEntity.ok().body(categoryService.findAllCategories(pageable).getContent());
-    }
-
-    @GetMapping("list/filtered")
-    public ResponseEntity<List<Category>> findCategoriesListFiltered(@RequestParam(value = "page", required = false) Integer page, @RequestParam(value = "size", required = false) Integer size, @RequestBody HashMap<String, Object> data){
-        Pageable pageable = PageRequest.of(page!=null?page:0, size!=null?size:10, Sort.by("id").descending());
-        return ResponseEntity.ok().body(categoryService.findAllFilteredCategories(pageable, new JSONObject(data)).getContent());
-    }
-
-    @PostMapping("{categoryId}/add/products")
-    public ResponseEntity<JSONObject> addProductToCategory(@PathVariable("categoryId") Long categoryId, @RequestBody HashMap<String, Object> data){
-        return ResponseEntity.ok().body(categoryService.addProductToCategory(categoryId, new JSONObject(data)));
     }
 }
