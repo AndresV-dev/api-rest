@@ -5,7 +5,8 @@ import org.json.JSONObject;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Service
 public class SearchUtils<T> {
@@ -43,7 +44,7 @@ public class SearchUtils<T> {
             if (data.has("between")){ // data Example {"keyBD": ["", ""]}
                 JSONObject between = (JSONObject) data.get("between");
                 between.toMap().forEach((key, value) -> {
-                    ArrayList<String> list = (ArrayList<String>) value;
+                    List<String> list = Arrays.asList(value.toString().substring(1, value.toString().length() - 1).split(", "));
                     predicates[i[0]] = cb.between(root.get(key), list.get(0), list.get(1));
                     i[0]++; //<T, ID>
                 });

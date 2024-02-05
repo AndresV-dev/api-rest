@@ -55,7 +55,7 @@ public class AuthenticationController {
         return ResponseEntity.created(URI.create("/users/" + user.getId())).body(user);
     }
 
-    @PutMapping("/update/{uuid}")
+    @PutMapping("/update/uuid/{uuid}")
     public ResponseEntity<?> updateUser(@PathVariable("uuid") String uuid, @RequestBody HashMap<String, Object> userData) throws JsonProcessingException {
         boolean tryUpdatePassword = false;
         JSONObject response = new JSONObject();

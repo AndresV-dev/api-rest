@@ -26,9 +26,9 @@ public class ProductController {
         return ResponseEntity.ok().body(productService.saveProduct(product));
     }
 
-    @PostMapping("update")
-    public ResponseEntity<Product> update(@Valid @RequestBody Product product){
-        return ResponseEntity.ok().body(productService.saveProduct(product));
+    @PostMapping("update/id/{id}")
+    public ResponseEntity<Product> update(@Valid @RequestBody HashMap<String, Object> productData, @RequestParam(value = "id", required = true) Long id){
+        return ResponseEntity.ok().body(productService.updateProduct(id, productData));
     }
 
     @GetMapping("id/{id}")

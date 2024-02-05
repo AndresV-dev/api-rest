@@ -1,6 +1,5 @@
 package com.andresv2.apirest.controller;
 
-import com.andresv2.apirest.entities.Category;
 import com.andresv2.apirest.entities.Store;
 import com.andresv2.apirest.service.StoreService;
 import jakarta.validation.Valid;

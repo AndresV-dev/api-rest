@@ -1,8 +1,6 @@
 package com.andresv2.apirest.service;
 
-import com.andresv2.apirest.entities.Category;
 import com.andresv2.apirest.entities.Store;
-import com.andresv2.apirest.repository.CategoryRepository;
 import com.andresv2.apirest.repository.StoreRepository;
 import com.andresv2.apirest.util.SearchUtils;
 import org.json.JSONObject;

@@ -24,9 +24,11 @@ public class Product {
     private String description;
     private String genre;
     private Double price;
+    @Column(columnDefinition = "TINYINT(1) DEFAULT 0")
     private Boolean discount;
     private String image;
     private String category;
     private Integer stock;
+    @Column(columnDefinition = "TINYINT(1) DEFAULT 1")
     private Boolean active;
 }
