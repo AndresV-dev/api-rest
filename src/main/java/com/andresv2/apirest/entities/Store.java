@@ -22,11 +22,14 @@ public class Store {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(length = 50)
     @NotEmpty(message = " cannot be null or empty")
     private String name;
     @NotEmpty(message = " cannot be null or empty")
+    @Column(length = 150)
     private String description;
     @NotEmpty(message = " cannot be null or empty")
+    @Column(length = 50)
     private String ramo; // technology, financial
     @Transient
     private List<Category> categories;

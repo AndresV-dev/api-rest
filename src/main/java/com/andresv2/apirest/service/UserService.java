@@ -1,7 +1,11 @@
 package com.andresv2.apirest.service;
 
 import com.andresv2.apirest.dto.CredentialsDto;
+import com.andresv2.apirest.entities.CollectionCategory;
 import com.andresv2.apirest.entities.User;
+import com.andresv2.apirest.entities.UserTaskCollection;
+import com.andresv2.apirest.repository.CollectionCategoryRepository;
+import com.andresv2.apirest.repository.CollectionRepository;
 import com.andresv2.apirest.repository.UserRepository;
 import com.andresv2.apirest.util.SearchUtils;
 import lombok.RequiredArgsConstructor;
@@ -24,9 +28,17 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
+    private CollectionRepository collectionRepo;
+    @Autowired
+    private CollectionCategoryRepository collectionCategoryRepo;
+    @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
     private SearchUtils<User> searchUtils;
+    @Autowired
+    private SearchUtils<UserTaskCollection> searchUtilsCollection;
+    @Autowired
+    private SearchUtils<CollectionCategory> searchUtilsCollectionCategory;
 
     public User findByUsername(String  username) {
         return userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("Unknown User [" + username + "]"));
@@ -48,6 +60,7 @@ public class UserService {
         JSONObject filters = new JSONObject();
         JSONObject equalsTo = new JSONObject();
 //        JSONObject between = new JSONObject(); //only if filters have between option
+        // All names of the keys reference to the keys of the Class
         // Define Filters
         if (userData.has("name")) equalsTo.put("name", userData.getString("name"));
         if (userData.has("lastname")) equalsTo.put("lastname", userData.getString("lastname"));
@@ -98,6 +111,7 @@ public class UserService {
     public User update(String uuid,HashMap<String, Object> userData) {
         User  user = userRepository.findByUuid(uuid).orElseThrow(() -> {throw new UsernameNotFoundException("User with UUID " + uuid + " not found");});
         userData.forEach((key, value) -> {
+            // All names of the keys reference to the keys of the Class
             switch (key) {
                 case "name" -> user.setName((String) value);
                 case "lastname" -> user.setLastname((String) value);
@@ -119,4 +133,35 @@ public class UserService {
         return userRepository.deleteByUuid(uuid); //<T, ID>
     }
 
+    public Page<UserTaskCollection> getListCollection(Long userId, Pageable pageable){
+        return collectionRepo.findAll(searchUtilsCollection.getQueryParameters(new JSONObject("{ 'equals' : { 'user_id' : " + userId + " }, 'size' : 1}")), pageable);
+    }
+
+    public Page<UserTaskCollection> getListCollectionFilters(Long userId, JSONObject data, Pageable pageable){
+
+        if(data.has("category"))
+            return collectionRepo.findAllByuserIdAndCategories_name(userId ,data.getString("category"), pageable);
+
+        JSONObject filters = new JSONObject();
+        JSONObject equalsTo = new JSONObject();
+        JSONObject likeTo = new JSONObject();
+        // All names of the keys reference to the keys of the Class
+        if(data.has("name")) equalsTo.put("name", data.getString("name"));
+        if(data.has("category")) likeTo.put("description", data.getInt("category"));
+        if(data.has("collection_id")) equalsTo.put("collection_id", data.getInt("collection_id"));
+
+        // This is Mandatory 'cause One collection Only can be for One User
+        equalsTo.put("userId", userId);
+
+        if(equalsTo.length() > 0) filters.put("equals", equalsTo);
+        if(likeTo.length() > 0) filters.put("like", likeTo);
+
+        filters.put("size", equalsTo.length() + likeTo.length());
+
+        return collectionRepo.findAll(searchUtilsCollection.getQueryParameters(filters), pageable);
+    }
+
+    public Page<CollectionCategory> getListCategoriesByCollection(Long collectionId, Pageable pageable){
+        return collectionCategoryRepo.findAll(searchUtilsCollectionCategory.getQueryParameters(new JSONObject("{ 'equals' : { 'collection_id' : " + collectionId + " }, 'size' : 1}")), pageable);
+    }
 }

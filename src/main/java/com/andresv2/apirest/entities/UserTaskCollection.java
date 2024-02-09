@@ -17,9 +17,12 @@ public class UserTaskCollection {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(length = 50)
     private String name;
+    @Column(length = 100)
     private String description;
-    private String user_id;
-    @OneToMany
+    @Column(name = "user_id")
+    private Long userId;
+    @OneToMany(mappedBy = "collection_id", targetEntity = CollectionCategory.class)
     private List<CollectionCategory> categories;
 }
