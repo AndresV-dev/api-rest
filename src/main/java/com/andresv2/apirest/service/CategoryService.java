@@ -30,6 +30,7 @@ public class CategoryService {
     public Category updateCategory(Long id, HashMap<String, Object> userData) {
         Category category = categoryRepo.findById(id).orElseThrow(() -> {throw new UsernameNotFoundException("User with ID " + id + " not found");});
         userData.forEach((key, value) -> {
+            // All names of the keys reference to the keys of the Class
             switch (key) {
                 case "name" -> category.setName((String) value);
                 case "description" -> category.setDescription((String) value);

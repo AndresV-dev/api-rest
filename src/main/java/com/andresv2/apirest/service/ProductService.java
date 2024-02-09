@@ -28,6 +28,7 @@ public class ProductService {
     public Product updateProduct(Long id, HashMap<String, Object> userData) {
         Product product = productRepo.findById(id).orElseThrow(() -> {throw new UsernameNotFoundException("User with ID " + id + " not found");});
         userData.forEach((key, value) -> {
+            // All names of the keys reference to the keys of the Class
             switch (key) {
                 case "name" -> product.setName((String) value);
                 case "description" -> product.setDescription((String) value);
@@ -56,6 +57,7 @@ public class ProductService {
         JSONObject equalsTo = new JSONObject();
         JSONObject betweenTo = new JSONObject(); //only if filters have between option
         // Define Filters
+        // All names of the keys reference to the keys of the Class
         if (data.has("name")) equalsTo.put("name", data.getString("name"));
         if (data.has("description")) equalsTo.put("description", data.getString("description"));
         if (data.has("category")) equalsTo.put("category", data.getString("category"));

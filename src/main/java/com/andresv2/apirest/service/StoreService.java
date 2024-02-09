@@ -40,6 +40,7 @@ public class StoreService {
         JSONObject equalsTo = new JSONObject();
 //        JSONObject between = new JSONObject(); //only if filters have between option
         // Define Filters
+        // All names of the keys reference to the keys of the Class
         if (data.has("name")) equalsTo.put("name", data.getString("name"));
         if (data.has("description")) equalsTo.put("description", data.getString("description"));
         if (data.has("ramo")) equalsTo.put("ramo", data.getString("ramo"));

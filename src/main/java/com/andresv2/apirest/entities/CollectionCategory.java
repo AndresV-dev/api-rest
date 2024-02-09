@@ -16,6 +16,10 @@ public class CollectionCategory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(length = 50, nullable = false)
     private String name;
+    @Column(length = 150)
     private String description;
+    @Column(nullable = false)
+    private Long collection_id;
 }
