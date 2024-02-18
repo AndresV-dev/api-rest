@@ -134,7 +134,7 @@ public class UserService {
     }
 
     public Page<UserTaskCollection> getListCollection(Long userId, Pageable pageable){
-        return collectionRepo.findAll(searchUtilsCollection.getQueryParameters(new JSONObject("{ 'equals' : { 'user_id' : " + userId + " }, 'size' : 1}")), pageable);
+        return collectionRepo.findAll(searchUtilsCollection.getQueryParameters(new JSONObject("{ 'equals' : { 'userId' : " + userId + " }, 'size' : 1}")), pageable);
     }
 
     public Page<UserTaskCollection> getListCollectionFilters(Long userId, JSONObject data, Pageable pageable){
