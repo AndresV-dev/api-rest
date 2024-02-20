@@ -36,9 +36,8 @@ public class Task {
     private Date endAt;
     @Column(name = "collection_id")
     private Integer collectionId;
-    @ManyToOne
-    @JoinColumn(name = "category_id")
-    private Category category;
+    @Column(name = "categoryId")
+    private Integer categoryId;
     @Column(name = "priority_id")
     private Integer priorityId;
     @Column(name = "user_id")
