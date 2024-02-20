@@ -8,5 +8,6 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 public interface CollectionRepository extends JpaRepository<UserTaskCollection, Long>, JpaSpecificationExecutor<UserTaskCollection> {
 
-    Page<UserTaskCollection> findAllByuserIdAndCategories_name(Long user_id, String name, Pageable pageable);
+    Page<UserTaskCollection> findAllByUserIdAndCategories_name(Long user_id, String name, Pageable pageable);
+    UserTaskCollection findByIdAndUserId(Long id, Long user_id);
 }
