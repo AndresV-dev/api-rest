@@ -25,4 +25,10 @@ public class UserTaskCollection {
     private Long userId;
     @OneToMany(mappedBy = "collection_id", targetEntity = CollectionCategory.class)
     private List<CollectionCategory> categories;
+    @Transient
+    private String error;
+
+    public UserTaskCollection(String error) {
+        this.error = error;
+    }
 }

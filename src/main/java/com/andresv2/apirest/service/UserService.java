@@ -137,10 +137,13 @@ public class UserService {
         return collectionRepo.findAll(searchUtilsCollection.getQueryParameters(new JSONObject("{ 'equals' : { 'userId' : " + userId + " }, 'size' : 1}")), pageable);
     }
 
+    public UserTaskCollection getCollectionById(Long userId, Long collectionId){
+        return collectionRepo.findByIdAndUserId(collectionId, userId);
+    }
     public Page<UserTaskCollection> getListCollectionFilters(Long userId, JSONObject data, Pageable pageable){
 
         if(data.has("category"))
-            return collectionRepo.findAllByuserIdAndCategories_name(userId ,data.getString("category"), pageable);
+            return collectionRepo.findAllByUserIdAndCategories_name(userId ,data.getString("category"), pageable);
 
         JSONObject filters = new JSONObject();
         JSONObject equalsTo = new JSONObject();

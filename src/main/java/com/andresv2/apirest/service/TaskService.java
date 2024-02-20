@@ -1,7 +1,8 @@
 package com.andresv2.apirest.service;
 
-import com.andresv2.apirest.entities.Category;
 import com.andresv2.apirest.entities.Task;
+import com.andresv2.apirest.entities.TaskPriority;
+import com.andresv2.apirest.repository.TaskPriorityRepository;
 import com.andresv2.apirest.repository.TaskRepository;
 import com.andresv2.apirest.util.SearchUtils;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +25,10 @@ public class TaskService {
     private TaskRepository taskRepo;
     @Autowired
     private CategoryService categoryService;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private TaskPriorityRepository taskPriorityRepo;
     @Autowired
     private SearchUtils<Task> searchUtilsTask;
 
@@ -38,13 +44,23 @@ public class TaskService {
                 case "title" -> task.setTitle((String) value);
                 case "description" -> task.setDescription((String) value);
                 case "endAt" -> task.setEndAt((Date) value);
-                case "collectionId" -> task.setCollectionId((Integer) value);
+/*                case "collectionId" -> {
+                    UserTaskCollection collection = userService.getCollectionById(id, (Long) value);
+                    if (collection.getError() != null && !Objects.equals(collection.getError(), "")){
+                       throw new UsernameNotFoundException("This Category is not this user");
+                    }
+                taskteger.setCollection(collection);
+                }
                 case "categoryId" -> task.setCategory(categoryService.getCategoriesByStoreId((Long) value).get(0));
-                case "priorityId" -> task.setPriorityId((Integer) value);
+*/                case "priorityId" -> task.setPriorityId((Integer) value);
                 case "userId" -> task.setUserId((Long) value);
             }
         });
         return taskRepo.save(task);
+    }
+
+    public Page<TaskPriority> getTaskPriorityList(Pageable pageable){
+        return taskPriorityRepo.findAll(pageable);
     }
 
     public Page<Task> getListTaskByUserId(Pageable pageable, Long user_id){
