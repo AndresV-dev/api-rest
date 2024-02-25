@@ -12,6 +12,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TaskRepository extends JpaRepository<Task, Long>, JpaSpecificationExecutor<Task> {
 
-    @Query(value = "Select t.*, cat.name as category from task as t inner join category cat on t.category_id = cat.id where t.user_id = :userId", nativeQuery = true)
+    @Query(value = "Select * from task t where t.user_id = :userId", nativeQuery = true)
     Page<Task> findAllByUserId(@Param("userId") Long userId, Pageable pageable);
+    @Query(value = "Select * from task t where user_id = :userId and end_at = :endAt", nativeQuery = true)
+    Page<Task> findAllByUserIdAndEndAt(@Param("userId") Long userId, @Param("endAt") String date, Pageable pageable);
 }
