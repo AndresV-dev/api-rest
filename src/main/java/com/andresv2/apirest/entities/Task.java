@@ -8,7 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.UuidGenerator;
 
-import java.util.Date;
+import java.sql.Date;
 
 @Entity
 @Data
@@ -24,19 +24,21 @@ public class Task {
     @UuidGenerator
     @Column(length = 36, unique = true)
     private String uuid;
+    @Column(name = "status", length = 50)
+    private String status;
     @Column(length = 50)
     private String title;
     @Column(length = 150)
     private String description;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "America/Mexico_City")
-    @Column(name = "created_at", columnDefinition = "Datetime default current_timestamp")
+    @Column(name = "created_at")
     private Date createdAt;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "America/Mexico_City")
-    @Column(name = "end_at", columnDefinition = "Datetime default current_timestamp")
+    @Column(name = "end_at")
     private Date endAt;
     @Column(name = "collection_id")
     private Integer collectionId;
-    @Column(name = "categoryId")
+    @Column(name = "category_id")
     private Integer categoryId;
     @Column(name = "priority_id")
     private Integer priorityId;
