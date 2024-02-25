@@ -13,9 +13,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
+import java.sql.Date;
 import java.util.HashMap;
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -72,16 +71,16 @@ public class TaskService {
         JSONObject equalsTo = new JSONObject();
 
         // All names of the keys reference to the keys of the Class
-        if(filterData.has("collection")) equalsTo.put("collection", filterData.getInt("collection"));
-        if(filterData.has("category")) equalsTo.put("category", filterData.getInt("category"));
-        if(filterData.has("status")) equalsTo.put("priority", filterData.getInt("priority"));
+        if(filterData.has("collection")) equalsTo.put("collectionId", filterData.getInt("collection"));
+        if(filterData.has("category")) equalsTo.put("categoryId", filterData.getInt("category"));
+        if(filterData.has("priority")) equalsTo.put("priorityId", filterData.getInt("priority"));
+        if (filterData.has("endAt")) equalsTo.put("endAt", Date.valueOf(filterData.getString("endAt")));
 
         equalsTo.put("userId", user_id);
         filters.put("equals", equalsTo);
 
         // if the method have more filters like between or  greater than etc. we need to add the summary of sizes to size key Example size-> filters.put("size", equalsTo.length() + greaterThan.length() + between.length());
         filters.put("size", equalsTo.length()); // + between.length()
-
         return taskRepo.findAll(searchUtilsTask.getQueryParameters(filters), pageable);
     }
 }
