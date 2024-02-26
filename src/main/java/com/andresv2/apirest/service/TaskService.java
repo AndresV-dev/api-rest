@@ -13,8 +13,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.sql.Date;
-import java.util.HashMap;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -42,7 +45,7 @@ public class TaskService {
             switch (key) {
                 case "title" -> task.setTitle((String) value);
                 case "description" -> task.setDescription((String) value);
-                case "endAt" -> task.setEndAt((Date) value);
+                case "endAt" -> task.setEndAt((LocalDateTime) value);
 /*                case "collectionId" -> {
                     UserTaskCollection collection = userService.getCollectionById(id, (Long) value);
                     if (collection.getError() != null && !Objects.equals(collection.getError(), "")){
@@ -66,21 +69,62 @@ public class TaskService {
         return taskRepo.findAllByUserId(user_id, pageable);
     }
 
-    public Page<Task> getListTaskByFiltersByUserId(Pageable pageable, Long user_id, JSONObject filterData){
+    public Page<Task> getListTaskByFiltersByUserId(Pageable pageable, Long user_id, JSONObject filterData) throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("America/Mexico_City"));
+
         JSONObject filters = new JSONObject();
         JSONObject equalsTo = new JSONObject();
+        JSONObject between = new JSONObject();
+        JSONObject like = new JSONObject();
+        JSONObject greaterThanOrEqualTo = new JSONObject();
 
         // All names of the keys reference to the keys of the Class
         if(filterData.has("collection")) equalsTo.put("collectionId", filterData.getInt("collection"));
         if(filterData.has("category")) equalsTo.put("categoryId", filterData.getInt("category"));
         if(filterData.has("priority")) equalsTo.put("priorityId", filterData.getInt("priority"));
-        if (filterData.has("endAt")) equalsTo.put("endAt", Date.valueOf(filterData.getString("endAt")));
+        if(filterData.has("description")) like.put("description", filterData.getString("description"));
+        if(filterData.has("title")) like.put("title", filterData.getString("title"));
+        if(filterData.has("status")) equalsTo.put("status", filterData.getString("status"));
+
+        if (filterData.has("createdAt")) {
+            if(filterData.getString("endAt").length() < 11){
+                List<String> betweenDates = Arrays.asList(filterData.getString("createdAt") + "T00:00:00" , filterData.getString("endAt") + "T23:59:59");
+                between.put("endAt", betweenDates);
+            }else {
+                String[] dateAndTime = filterData.getString("createdAt").split(" ");
+                String[] date = dateAndTime[0].split("-");
+                String[] time = dateAndTime[1].split(":");
+                cal.set(Integer.parseInt(date[0]), Integer.parseInt(date[1]) - 1, Integer.parseInt(date[2]), Integer.parseInt(time[0]), Integer.parseInt(time[1]), Integer.parseInt(time[2]));
+
+                Date date1 = cal.getTime();
+                greaterThanOrEqualTo.put("createdAt", sdf.format(date1).replace(" ", "T"));
+            }
+        }
+        if (filterData.has("endAt")) {
+            if(filterData.getString("endAt").length() < 11){
+                List<String> betweenDates = Arrays.asList( filterData.getString("endAt") + "T00:00:00" , filterData.getString("endAt") + "T23:59:59");
+                between.put("endAt", betweenDates);
+            }else {
+                String[] dateAndTime = filterData.getString("endAt").split(" ");
+                String[] date = dateAndTime[0].split("-");
+                String[] time = dateAndTime[1].split(":");
+                cal.set(Integer.parseInt(date[0]), Integer.parseInt(date[1]) - 1, Integer.parseInt(date[2]), Integer.parseInt(time[0]), Integer.parseInt(time[1]), Integer.parseInt(time[2]));
+
+                Date date1 = cal.getTime();
+                greaterThanOrEqualTo.put("endAt", sdf.format(date1).replace(" ", "T"));
+            }
+        }
 
         equalsTo.put("userId", user_id);
         filters.put("equals", equalsTo);
+        filters.put("size", equalsTo.length()); // + between.length()
+
+        if(between.length() > 0) filters.put("between", between); filters.put("size", filters.getInt("size") + between.length());
+        if(like.length() > 0) filters.put("like", like); filters.put("size", filters.getInt("size") + like.length());
+        if(greaterThanOrEqualTo.length() > 0) filters.put("greaterThanOrEqualTo", greaterThanOrEqualTo); filters.put("size", filters.getInt("size") + greaterThanOrEqualTo.length());
 
         // if the method have more filters like between or  greater than etc. we need to add the summary of sizes to size key Example size-> filters.put("size", equalsTo.length() + greaterThan.length() + between.length());
-        filters.put("size", equalsTo.length()); // + between.length()
         return taskRepo.findAll(searchUtilsTask.getQueryParameters(filters), pageable);
     }
 }
