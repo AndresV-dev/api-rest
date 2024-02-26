@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.sql.Date;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity
 @Data
@@ -30,12 +32,12 @@ public class Task {
     private String title;
     @Column(length = 150)
     private String description;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "America/Mexico_City")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "UTC") // ALSO CAN BE America/Mexico_City for mexico city -8 hours
     @Column(name = "created_at")
-    private Date createdAt;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "America/Mexico_City")
+    private LocalDateTime createdAt;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "UTC")
     @Column(name = "end_at")
-    private Date endAt;
+    private LocalDateTime endAt;
     @Column(name = "collection_id")
     private Integer collectionId;
     @Column(name = "category_id")
