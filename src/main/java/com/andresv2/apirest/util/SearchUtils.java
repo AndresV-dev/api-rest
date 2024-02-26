@@ -5,8 +5,9 @@ import org.json.JSONObject;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.sql.Date;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -20,18 +21,15 @@ public class SearchUtils<T> {
 
             if(data.has("equals")){
                 data.getJSONObject("equals").toMap().forEach((key, value) -> {
-                    if(value.getClass() == Date.class)
-                        predicates[i[0]] = cb.equal(root.get(key), (Date) value);
-                    else
-                        predicates[i[0]] = cb.equal(root.get(key), value);
+                    predicates[i[0]] = cb.equal(root.get(key), value);
                     i[0]++;
                 });
             }
 
             if(data.has("lessThanOrEqualTo")){// data Example
                 data.getJSONObject("lessThanOrEqualTo").toMap().forEach((key, value) -> {
-                    if(value.getClass() == Date.class)
-                        predicates[i[0]] = cb.greaterThanOrEqualTo(root.get(key), (Date) value);
+                    if(value.toString().contains("-"))
+                        predicates[i[0]] = cb.lessThanOrEqualTo(root.get(key), LocalDateTime.parse(value.toString()));
                     else
                         predicates[i[0]] = cb.lessThanOrEqualTo(root.get(key), value.toString());
                     i[0]++;
@@ -40,8 +38,8 @@ public class SearchUtils<T> {
 
             if (data.has("greaterThanOrEqualTo")){// data Example { "}
                 data.getJSONObject("greaterThanOrEqualTo").toMap().forEach((key, value) -> {
-                    if(value.getClass() == Date.class)
-                        predicates[i[0]] = cb.greaterThanOrEqualTo(root.get(key), (Date) value);
+                    if(value.toString().contains("-"))
+                        predicates[i[0]] = cb.greaterThanOrEqualTo(root.get(key), LocalDateTime.parse(value.toString()));
                     else
                         predicates[i[0]] = cb.greaterThanOrEqualTo(root.get(key), value.toString());
                     i[0]++; //<T, ID>
@@ -59,8 +57,8 @@ public class SearchUtils<T> {
                 JSONObject between = (JSONObject) data.get("between");
                 between.toMap().forEach((key, value) -> {
                     List<String> list = Arrays.asList(value.toString().substring(1, value.toString().length() - 1).split(", "));
-                    if(value.getClass() == Date.class)
-                        predicates[i[0]] = cb.between(root.get(key), Date.valueOf(list.get(0)), Date.valueOf(list.get(1)));
+                    if((list.get(0).contains("-") && list.get(1).contains("-")))
+                        predicates[i[0]] = cb.between(root.get(key), LocalDateTime.parse(list.get(0)), LocalDateTime.parse(list.get(1)));
                     else
                         predicates[i[0]] = cb.between(root.get(key), list.get(0), list.get(1));
                     i[0]++; //<T, ID>
