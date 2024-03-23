@@ -48,8 +48,7 @@ public class CustomExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleException(Exception ex, WebRequest request){
-        errorPart = ex.getMessage().split(":");
-        ErrorResponseDto error = new ErrorResponseDto(500 ,HttpStatus.INTERNAL_SERVER_ERROR.name(), errorPart[0], request.getDescription(false));
+        ErrorResponseDto error = new ErrorResponseDto(500 ,HttpStatus.INTERNAL_SERVER_ERROR.name(), ex.getMessage(), request.getDescription(false));
         return new ResponseEntity<>(error , HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
