@@ -39,6 +39,8 @@ public class UserService {
     private SearchUtils<UserTaskCollection> searchUtilsCollection;
     @Autowired
     private SearchUtils<CollectionCategory> searchUtilsCollectionCategory;
+    @Autowired
+    private SearchUtils<CollectionCategory> categorySearchUtils;
 
     public User findByUsername(String  username) {
         return userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("Unknown User [" + username + "]"));
@@ -101,6 +103,7 @@ public class UserService {
             throw new UsernameNotFoundException("Username Already Exists");
         }
 
+        userData.setJson(new JSONObject(userData.toString()).toString());
         userData.setPassword(passwordEncoder.encode(CharBuffer.wrap(userData.getPassword())));
         userData.setUuid(java.util.UUID.randomUUID().toString());
         userData.setCreated_at(new Date());
@@ -119,7 +122,7 @@ public class UserService {
                 case "age" -> user.setAge((int) value);
                 case "username" -> user.setUsername((String) value);
                 case "email" -> user.setEmail((String) value);
-                case "json" -> user.setJson((String) value);
+                case "json" -> user.setJson(new JSONObject(userData.toString()).toString());
             }
         });
          return userRepository.save(user);
@@ -133,6 +136,47 @@ public class UserService {
         return userRepository.deleteByUuid(uuid); //<T, ID>
     }
 
+    public UserTaskCollection saveCollection(UserTaskCollection collection){
+        return collectionRepo.save(collection);
+    }
+
+    public UserTaskCollection updateCollection(Long id,HashMap<String, Object> collectionData){
+        UserTaskCollection collection = collectionRepo.getReferenceById(id);
+
+        collectionData.forEach((key, value) -> {
+            // All names of the keys reference to the keys of the Class
+            switch (key) {
+                case "name" -> collection.setName((String) value);
+                case "description" -> collection.setDescription((String) value);
+                case "userId" -> collection.setUserId((Long) value);
+                case "categories" -> collection.setCategories((List<CollectionCategory>) value);
+                default -> throw new IllegalStateException("Unexpected value: " + key);
+            }
+        });
+
+        return collectionRepo.save(collection);
+    }
+
+    public CollectionCategory saveCategory(CollectionCategory collection){
+        return collectionCategoryRepo.save(collection);
+    }
+
+    public CollectionCategory updateCategory(Long id,HashMap<String, Object> categoryData){
+        CollectionCategory collection = collectionCategoryRepo.getReferenceById(id);
+
+        categoryData.forEach((key, value) -> {
+            // All names of the keys reference to the keys of the Class
+            switch (key) {
+                case "name" -> collection.setName((String) value);
+                case "description" -> collection.setDescription((String) value);
+                case "collection_id" -> collection.setCollection_id((Long) value);
+                default -> throw new IllegalStateException("Unexpected value: " + key);
+            }
+        });
+
+        return collectionCategoryRepo.save(collection);
+    }
+
     public Page<UserTaskCollection> getListCollection(Long userId, Pageable pageable){
         return collectionRepo.findAll(searchUtilsCollection.getQueryParameters(new JSONObject("{ 'equals' : { 'userId' : " + userId + " }, 'size' : 1}")), pageable);
     }
@@ -140,6 +184,28 @@ public class UserService {
     public UserTaskCollection getCollectionById(Long userId, Long collectionId){
         return collectionRepo.findByIdAndUserId(collectionId, userId);
     }
+
+    public Page<CollectionCategory> getListCategoriesFilters(Long userId, JSONObject data, Pageable pageable){
+
+        JSONObject filters = new JSONObject();
+        JSONObject equalsTo = new JSONObject();
+        JSONObject likeTo = new JSONObject();
+        // All names of the keys reference to the keys of the Class
+        if(data.has("name")) equalsTo.put("name", data.getString("name"));
+        if(data.has("category")) likeTo.put("description", data.getInt("category"));
+        if(data.has("collection_id")) equalsTo.put("collection_id", data.getInt("collection_id"));
+
+        // This is Mandatory 'cause One collection Only can be for One User
+        equalsTo.put("userId", userId);
+
+        if(equalsTo.length() > 0) filters.put("equals", equalsTo);
+        if(likeTo.length() > 0) filters.put("like", likeTo);
+
+        filters.put("size", equalsTo.length() + likeTo.length());
+
+        return collectionCategoryRepo.findAll(categorySearchUtils.getQueryParameters(filters), pageable);
+    }
+
     public Page<UserTaskCollection> getListCollectionFilters(Long userId, JSONObject data, Pageable pageable){
 
         if(data.has("category"))

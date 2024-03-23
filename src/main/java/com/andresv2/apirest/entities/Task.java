@@ -2,15 +2,17 @@ package com.andresv2.apirest.entities;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.UuidGenerator;
+import org.springframework.data.annotation.CreatedDate;
 
-import java.sql.Date;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Entity
 @Data
@@ -29,14 +31,16 @@ public class Task {
     @Column(name = "status", length = 50)
     private String status;
     @Column(length = 50)
+    @NotEmpty(message = " cannot be null or empty")
     private String title;
     @Column(length = 150)
     private String description;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "UTC") // ALSO CAN BE America/Mexico_City for mexico city -8 hours
-    @Column(name = "created_at")
+    @CreatedDate()
+    @Column(name = "created_at", columnDefinition = "datetime default CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "UTC")
-    @Column(name = "end_at")
+    @Column(name = "end_at", columnDefinition = "datetime default CURRENT_TIMESTAMP")
     private LocalDateTime endAt;
     @Column(name = "collection_id")
     private Integer collectionId;

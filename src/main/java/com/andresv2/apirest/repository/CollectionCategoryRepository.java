@@ -7,4 +7,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CollectionCategoryRepository extends JpaRepository<CollectionCategory, Long>, JpaSpecificationExecutor<CollectionCategory> {
+
+
 }
