@@ -4,6 +4,7 @@ import com.andresv2.apirest.entities.CollectionCategory;
 import com.andresv2.apirest.entities.User;
 import com.andresv2.apirest.entities.UserTaskCollection;
 import com.andresv2.apirest.service.UserService;
+import jakarta.validation.Valid;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +50,17 @@ public class UserController {
         Pageable pageable = PageRequest.of(page!=null?page:0, size!=null?size:10, Sort.by("id").descending());
         return ResponseEntity.ok().body(userService.findUsersByFilters(pageable, new JSONObject(data)).getContent());
     }
+
+    @PutMapping("collection/register")
+    public ResponseEntity<UserTaskCollection> saveCollection(@Valid @RequestBody UserTaskCollection task) {
+        return ResponseEntity.ok(userService.saveCollection(task));
+    }
+
+    @PostMapping("collection/update/{id}")
+    public ResponseEntity<UserTaskCollection> updateCollection(@Valid @RequestBody HashMap<String, Object> collectionData, @RequestParam("id") Long id) {
+        return ResponseEntity.ok(userService.updateCollection(id, collectionData));
+    }
+
     @GetMapping("collection/list")
     public ResponseEntity<List<UserTaskCollection>> getListCollectionByUserId(@RequestParam(value = "page", required = false) Integer page, @RequestParam(value = "size", required = false) Integer size) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -56,11 +68,21 @@ public class UserController {
         return ResponseEntity.ok(userService.getListCollection(user.getId(), pageable).getContent());
     }
 
-    @PostMapping("collection/list")
-    public ResponseEntity<List<UserTaskCollection>> getListCollectionByUserIdFilters(@RequestParam(value = "page", required = false) Integer page, @RequestParam(value = "size", required = false) Integer size,@RequestBody HashMap<String, Object> data) {
+    @PostMapping("categories/list")
+    public ResponseEntity<List<CollectionCategory>> getListCategoryByUserIdFilters(@RequestParam(value = "page", required = false) Integer page, @RequestParam(value = "size", required = false) Integer size,@RequestBody HashMap<String, Object> data) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Pageable pageable = PageRequest.of(page!=null?page:0, size!=null?size:10, Sort.by("id").descending());
-        return ResponseEntity.ok(userService.getListCollectionFilters(user.getId(), new JSONObject(data), pageable).getContent());
+        return ResponseEntity.ok(userService.getListCategoriesFilters(user.getId(), new JSONObject(data), pageable).getContent());
+    }
+
+    @PutMapping("collection/category/register")
+    public ResponseEntity<CollectionCategory> saveCategory(@Valid @RequestBody CollectionCategory category) {
+        return ResponseEntity.ok(userService.saveCategory(category));
+    }
+
+    @PostMapping("collection/category/update/{id}")
+    public ResponseEntity<CollectionCategory> updateCategory(@Valid @RequestBody HashMap<String, Object> categoryData, @RequestParam("id") Long id) {
+        return ResponseEntity.ok(userService.updateCategory(id, categoryData));
     }
 
     @GetMapping("categories/collection/{id}")
