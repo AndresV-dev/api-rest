@@ -26,7 +26,7 @@ public class TaskController {
     private TaskService taskService;
 
     @PutMapping("register")
-    public ResponseEntity<Task> saveTask(@RequestBody Task task) {
+    public ResponseEntity<Task> saveTask(@Valid @RequestBody Task task) {
         return ResponseEntity.ok(taskService.saveTask(task));
     }
 
