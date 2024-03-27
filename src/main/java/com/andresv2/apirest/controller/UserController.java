@@ -75,6 +75,12 @@ public class UserController {
         return ResponseEntity.ok(userService.getListCategoriesFilters(user.getId(), new JSONObject(data), pageable).getContent());
     }
 
+    @GetMapping("categories/list")
+    public ResponseEntity<List<CollectionCategory>> getListCategoryByUserId() {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return ResponseEntity.ok(userService.getListCategories(user.getId()));
+    }
+
     @PutMapping("collection/category/register")
     public ResponseEntity<CollectionCategory> saveCategory(@Valid @RequestBody CollectionCategory category) {
         return ResponseEntity.ok(userService.saveCategory(category));
