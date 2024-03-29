@@ -181,6 +181,21 @@ public class UserService {
         return collectionRepo.findAll(searchUtilsCollection.getQueryParameters(new JSONObject("{ 'equals' : { 'userId' : " + userId + " }, 'size' : 1}")), pageable);
     }
 
+    public List<CollectionCategory> getListCategories(Long userId){
+        // hacer un join de las collections con las categories para que solo vengan las categories relacionedas con las collections del usuario loggeado
+        // traer las collections del usuario
+        List<UserTaskCollection> collectionsCurrentUser = collectionRepo.findAllByUserId(userId);
+        //Save all the categories on this Object
+        List<CollectionCategory> categories = new ArrayList<>();
+
+        collectionsCurrentUser.forEach(collection -> {
+            categories.addAll(collection.getCategories());
+        });
+
+        // Return the object with the Categories
+        return categories;
+    }
+
     public UserTaskCollection getCollectionById(Long userId, Long collectionId){
         return collectionRepo.findByIdAndUserId(collectionId, userId);
     }

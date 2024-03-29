@@ -3,7 +3,6 @@ package com.andresv2.apirest.entities;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +11,6 @@ import org.hibernate.annotations.UuidGenerator;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Entity
 @Data
