@@ -80,12 +80,12 @@ public class TaskService {
         JSONObject greaterThanOrEqualTo = new JSONObject();
 
         // All names of the keys reference to the keys of the Class
-        if(filterData.has("collection")) equalsTo.put("collectionId", filterData.getInt("collection"));
-        if(filterData.has("category")) equalsTo.put("categoryId", filterData.getInt("category"));
-        if(filterData.has("priority")) equalsTo.put("priorityId", filterData.getInt("priority"));
-        if(filterData.has("description")) like.put("description", filterData.getString("description"));
-        if(filterData.has("title")) like.put("title", filterData.getString("title"));
-        if(filterData.has("status")) equalsTo.put("status", filterData.getString("status"));
+        if(filterData.has("collection") && filterData.getInt("collection") != 0) equalsTo.put("collectionId", filterData.getInt("collection"));
+        if(filterData.has("category") && filterData.getInt("category") != 0) equalsTo.put("categoryId", filterData.getInt("category"));
+        if(filterData.has("priority") && filterData.getInt("priority") != 0) equalsTo.put("priorityId", filterData.getInt("priority"));
+        if(filterData.has("description") && !filterData.getString("description").isBlank()) like.put("description", filterData.getString("description"));
+        if(filterData.has("title") && !filterData.getString("title").isBlank()) like.put("title", filterData.getString("title"));
+        if(filterData.has("status") && !filterData.getString("status").isBlank()) equalsTo.put("status", filterData.getString("status"));
 
         if (filterData.has("createdAt")) {
             if(filterData.getString("endAt").length() < 11){
