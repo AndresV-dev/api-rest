@@ -48,4 +48,11 @@ public class Task {
     private Integer priorityId;
     @Column(name = "user_id")
     private Long userId;
+
+    @Transient
+    private String collection;
+    @Transient
+    private String category;
+    @Transient
+    private Integer registers;
 }
