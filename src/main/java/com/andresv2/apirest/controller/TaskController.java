@@ -53,4 +53,11 @@ public class TaskController {
         Pageable pageable = PageRequest.of(page!=null?page:0, size!=null?size:10, Sort.by(sortBy!=null?sortBy:"id").descending());
         return ResponseEntity.ok(taskService.getTaskPriorityList(pageable).getContent());
     }
+
+    @PostMapping("/charts")
+    public ResponseEntity<List<Task>> getTasksChart(@RequestBody HashMap<String, Object> filterData){
+        List<Task> a = taskService.getTasksCharts(AuthUtilities.getCurrentUser().getId(), (Boolean) filterData.get("categories"));
+        System.out.println(a.get(0));
+        return ResponseEntity.ok(a);
+    }
 }

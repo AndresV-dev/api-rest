@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Service
@@ -65,6 +64,12 @@ public class TaskService {
         return taskPriorityRepo.findAll(pageable);
     }
 
+    public List<Task> getTasksCharts(Long userId, Boolean withCategory){
+        if(withCategory)
+            return taskRepo.getTasksChartsWithCategory(userId);
+
+        return taskRepo.getTasksChartsWithoutCategory(userId);
+    };
     public Page<Task> getListTaskByUserId(Pageable pageable, Long user_id){
         return taskRepo.findAllByUserId(user_id, pageable);
     }
