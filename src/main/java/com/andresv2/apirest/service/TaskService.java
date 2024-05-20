@@ -1,5 +1,6 @@
 package com.andresv2.apirest.service;
 
+import com.andresv2.apirest.dto.CollectionCatDto;
 import com.andresv2.apirest.entities.Task;
 import com.andresv2.apirest.entities.TaskPriority;
 import com.andresv2.apirest.repository.TaskPriorityRepository;
@@ -64,7 +65,7 @@ public class TaskService {
         return taskPriorityRepo.findAll(pageable);
     }
 
-    public List<Task> getTasksCharts(Long userId, Boolean withCategory){
+    public List<CollectionCatDto> getTasksCharts(Long userId, Boolean withCategory){
         if(withCategory)
             return taskRepo.getTasksChartsWithCategory(userId);
 
