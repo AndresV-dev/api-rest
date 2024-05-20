@@ -1,5 +1,6 @@
 package com.andresv2.apirest.controller;
 
+import com.andresv2.apirest.dto.CollectionCatDto;
 import com.andresv2.apirest.entities.Task;
 import com.andresv2.apirest.entities.TaskPriority;
 import com.andresv2.apirest.service.TaskService;
@@ -55,9 +56,7 @@ public class TaskController {
     }
 
     @PostMapping("/charts")
-    public ResponseEntity<List<Task>> getTasksChart(@RequestBody HashMap<String, Object> filterData){
-        List<Task> a = taskService.getTasksCharts(AuthUtilities.getCurrentUser().getId(), (Boolean) filterData.get("categories"));
-        System.out.println(a.get(0));
-        return ResponseEntity.ok(a);
+    public ResponseEntity<List<CollectionCatDto>> getTasksChart(@RequestBody HashMap<String, Object> filterData){
+        return ResponseEntity.ok(taskService.getTasksCharts(AuthUtilities.getCurrentUser().getId(), (Boolean) filterData.get("categories")));
     }
 }
