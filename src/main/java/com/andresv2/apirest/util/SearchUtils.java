@@ -26,12 +26,32 @@ public class SearchUtils<T> {
                 });
             }
 
+            if(data.has("lessThan")){
+                data.getJSONObject("lessThan").toMap().forEach((key, value) -> {
+                    if(value.toString().contains("-"))
+                        predicates[i[0]] = cb.greaterThanOrEqualTo(root.get(key), LocalDateTime.parse(value.toString()));
+                    else
+                        predicates[i[0]] = cb.greaterThanOrEqualTo(root.get(key), value.toString());
+                    i[0]++;
+                });
+            }
+
             if(data.has("lessThanOrEqualTo")){// data Example
                 data.getJSONObject("lessThanOrEqualTo").toMap().forEach((key, value) -> {
                     if(value.toString().contains("-"))
                         predicates[i[0]] = cb.lessThanOrEqualTo(root.get(key), LocalDateTime.parse(value.toString()));
                     else
                         predicates[i[0]] = cb.lessThanOrEqualTo(root.get(key), value.toString());
+                    i[0]++;
+                });
+            }
+
+            if(data.has("greaterThan")){
+                data.getJSONObject("greaterThan").toMap().forEach((key, value) -> {
+                    if(value.toString().contains("-"))
+                        predicates[i[0]] = cb.greaterThanOrEqualTo(root.get(key), LocalDateTime.parse(value.toString()));
+                    else
+                        predicates[i[0]] = cb.greaterThanOrEqualTo(root.get(key), value.toString());
                     i[0]++;
                 });
             }
