@@ -84,6 +84,7 @@ public class TaskService {
         JSONObject between = new JSONObject();
         JSONObject like = new JSONObject();
         JSONObject greaterThanOrEqualTo = new JSONObject();
+        JSONObject greaterThan = new JSONObject();
 
         // All names of the keys reference to the keys of the Class
         if(filterData.has("collection") && filterData.getInt("collection") != 0) equalsTo.put("collectionId", filterData.getInt("collection"));
@@ -94,7 +95,9 @@ public class TaskService {
         if(filterData.has("status") && !filterData.getString("status").isBlank()) equalsTo.put("status", filterData.getString("status"));
 
         if (filterData.has("createdAt")) {
-            if(filterData.getString("endAt").length() < 11){
+            if(!filterData.has("endAt"))
+                greaterThan.put("createdAt", filterData.getString("createdAt") + "T00:00:00");
+            else if(filterData.getString("endAt").length() < 11){
                 List<String> betweenDates = Arrays.asList(filterData.getString("createdAt") + "T00:00:00" , filterData.getString("endAt") + "T23:59:59");
                 between.put("endAt", betweenDates);
             }else {
@@ -129,6 +132,7 @@ public class TaskService {
         if(between.length() > 0) filters.put("between", between); filters.put("size", filters.getInt("size") + between.length());
         if(like.length() > 0) filters.put("like", like); filters.put("size", filters.getInt("size") + like.length());
         if(greaterThanOrEqualTo.length() > 0) filters.put("greaterThanOrEqualTo", greaterThanOrEqualTo); filters.put("size", filters.getInt("size") + greaterThanOrEqualTo.length());
+        if(greaterThan.length() > 0) filters.put("greaterThan", greaterThan); filters.put("size", filters.getInt("size") + greaterThan.length());
 
         // if the method have more filters like between or  greater than etc. we need to add the summary of sizes to size key Example size-> filters.put("size", equalsTo.length() + greaterThan.length() + between.length());
         return taskRepo.findAll(searchUtilsTask.getQueryParameters(filters), pageable);
