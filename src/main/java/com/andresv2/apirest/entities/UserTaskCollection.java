@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -23,8 +24,8 @@ public class UserTaskCollection {
     private String description;
     @Column(name = "user_id")
     private Long userId;
-    @OneToMany(mappedBy = "collection_id", targetEntity = CollectionCategory.class)
-    private List<CollectionCategory> categories;
+    @OneToMany(mappedBy = "collection_id", targetEntity = CollectionCategory.class, fetch = FetchType.EAGER)
+    private List<CollectionCategory> categories = new ArrayList<>();
     @Transient
     private String error;
 
