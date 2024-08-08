@@ -3,6 +3,7 @@ package com.andresv2.apirest.service;
 import com.andresv2.apirest.dto.CollectionCatDto;
 import com.andresv2.apirest.entities.Task;
 import com.andresv2.apirest.entities.TaskPriority;
+import com.andresv2.apirest.entities.result.Result;
 import com.andresv2.apirest.repository.TaskPriorityRepository;
 import com.andresv2.apirest.repository.TaskRepository;
 import com.andresv2.apirest.util.SearchUtils;
@@ -136,5 +137,9 @@ public class TaskService {
 
         // if the method have more filters like between or  greater than etc. we need to add the summary of sizes to size key Example size-> filters.put("size", equalsTo.length() + greaterThan.length() + between.length());
         return taskRepo.findAll(searchUtilsTask.getQueryParameters(filters), pageable);
+    }
+
+    public Result<Task> deleteTasksByUserId(Long userId, List<Integer> tasksIds) {
+        return taskRepo.deleteByUserIdAndTasksIds(userId, tasksIds) ? Result.ok(new Task()) : Result.failed("There was been an error on the process of Delete Tasks");
     }
 }

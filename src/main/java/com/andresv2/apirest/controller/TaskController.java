@@ -3,6 +3,7 @@ package com.andresv2.apirest.controller;
 import com.andresv2.apirest.dto.CollectionCatDto;
 import com.andresv2.apirest.entities.Task;
 import com.andresv2.apirest.entities.TaskPriority;
+import com.andresv2.apirest.entities.result.Result;
 import com.andresv2.apirest.service.TaskService;
 import com.andresv2.apirest.util.AuthUtilities;
 import jakarta.validation.Valid;
@@ -17,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -66,5 +66,11 @@ public class TaskController {
     @PostMapping("/charts")
     public ResponseEntity<List<CollectionCatDto>> getTasksChart(@RequestBody HashMap<String, Object> filterData){
         return ResponseEntity.ok(taskService.getTasksCharts(AuthUtilities.getCurrentUser().getId(), (Boolean) filterData.get("categories")));
+    }
+
+    @PostMapping("/delete")
+    public ResponseEntity<Object> deleteTaskFromUser(@RequestBody HashMap<String, Object> data) {
+        Result<Task> taskResult = taskService.deleteTasksByUserId(AuthUtilities.getCurrentUser().getId(), (List<Integer>) data.get("taskIds"));
+        return taskResult.isSuccessful() ? ResponseEntity.ok("All Tasks has been Deleted") : ResponseEntity.internalServerError().body(new JSONObject("{'error': '" + taskResult.getErrorMessage() + "'}"));
     }
 }

@@ -23,4 +23,6 @@ public interface TaskRepository extends JpaRepository<Task, Long>, JpaSpecificat
     List<CollectionCatDto> getTasksChartsWithCategory(Long userId);
     @Query(value = "select new CollectionCatDto(t.id, utc.name collection, count(t.id) registers) from Task t, UserTaskCollection utc where utc.id = t.collectionId and t.userId = ?1 group by t.collectionId")
     List<CollectionCatDto> getTasksChartsWithoutCategory(Long userId);
+    @Query(value = "Delete from task t where t.user_id = :userId and id in(:tasksIds)")
+    Boolean deleteByUserIdAndTasksIds(@Param("userId") Long userId,@Param("tasksIds") List<Integer> tasksIds);
 }
