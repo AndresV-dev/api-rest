@@ -1,7 +1,6 @@
 package com.andresv2.apirest.entities.result;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import jakarta.persistence.Entity;
 import lombok.*;
 
 import java.util.List;
@@ -10,7 +9,6 @@ import java.util.Optional;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @EqualsAndHashCode(callSuper=true)
 public class ListResult<T> extends Result<T> {

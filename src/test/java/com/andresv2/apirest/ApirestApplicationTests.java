@@ -2,7 +2,6 @@ package com.andresv2.apirest;
 
 import com.andresv2.apirest.entities.*;
 import com.andresv2.apirest.repository.CollectionRepository;
-import com.andresv2.apirest.service.CategoryService;
 import com.andresv2.apirest.service.TaskService;
 import com.andresv2.apirest.service.UserService;
 import org.junit.jupiter.api.Test;
@@ -10,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
