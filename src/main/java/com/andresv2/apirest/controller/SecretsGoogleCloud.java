@@ -4,10 +4,8 @@ import com.google.cloud.secretmanager.v1.AccessSecretVersionRequest;
 import com.google.cloud.secretmanager.v1.SecretManagerServiceClient;
 import com.google.cloud.secretmanager.v1.SecretVersionName;
 import jakarta.mail.*;
-import jakarta.mail.search.ComparisonTerm;
-import jakarta.mail.search.FlagTerm;
-import jakarta.mail.search.ReceivedDateTerm;
-import jakarta.mail.search.SearchTerm;
+import jakarta.mail.internet.MimeMultipart;
+import jakarta.mail.search.*;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import okhttp3.*;
@@ -47,10 +45,14 @@ public class SecretsGoogleCloud {
 
     @RequestMapping("get")
     @Produces(MediaType.TEXT_PLAIN)
-    public String readEmail() throws Exception {
+    public String readEmail(String email) throws Exception {
+        if(email != null)
+            emailToRead = email;
+
         try {
             // Obtener las credenciales del Secret Manager
             JSONArray credentialsJson = new JSONArray(accessSecretVersion(secretProjectId, secret_Id, secretVersion));
+            JSONArray messagess = new JSONArray();
 
             if(credentialsJson.length() < 0)
                 return "The File on Secret Manager is Empty, Please Validate";
@@ -102,25 +104,30 @@ public class SecretsGoogleCloud {
 
             // Filters to Search the Messages
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            SearchTerm todayDate = new ReceivedDateTerm(ComparisonTerm.EQ, sdf.parse(sdf.format(new Date())));
-        /* If we need to serach By Range of Dates Use This
+        /*  If we need to serach By Range of Dates Use This
             SearchTerm olderThan = new ReceivedDateTerm(ComparisonTerm.LT, someFutureDate);
             SearchTerm newerThan = new ReceivedDateTerm(ComparisonTerm.GT, somePastDate);
             SearchTerm andTerm = new AndTerm(olderThan, newerThan);
         */
-            // Leer los mensajes
-//            Message[] messages = inbox.search(todayDate); // Today Messages Filter
-            Message[] messages = inbox.search(new FlagTerm(new Flags(Flags.Flag.SEEN), false)); // only not Seen Messages
-            StringBuilder emailContent = new StringBuilder();
+
+            SearchTerm todayDate = new ReceivedDateTerm(ComparisonTerm.EQ, sdf.parse(sdf.format(new Date())));  // only today's messages
+            FlagTerm unseenFlagTerm = new FlagTerm(new Flags(Flags.Flag.SEEN), false);                      // only not Seen Messages
+
+            Message[] messages = inbox.search(new AndTerm(unseenFlagTerm, todayDate));
 
             for (Message message : messages) {
-                System.out.println(message.toString());
+                JSONObject messageJson = new JSONObject();
+                // here will be all the methods or services for the messages ( create Solicitudes, create Emisiones, etc.)
+                messageJson.put(String.valueOf(message.getReceivedDate()), getTextPlainMessage(message));
+                messagess.put(messageJson);
+                //this only will be set if the message did its method or service complete
+                message.setFlag(Flags.Flag.SEEN, true);
             }
 
             inbox.close(false);
             store.close();
 
-            return emailContent.toString();
+            return messagess.toString();
         } catch (Exception e){
             e.printStackTrace();
         }
@@ -170,6 +177,24 @@ public class SecretsGoogleCloud {
         } else {
             return TOKEN;
         }
+    }
+
+    private String getTextPlainMessage(Message message){
+        StringBuilder plainTextContent = new StringBuilder();
+        try {
+            if (message.isMimeType("text/plain")) {
+                plainTextContent = new StringBuilder(message.getContent().toString());
+            } else if (message.isMimeType("multipart/*")) {
+                MimeMultipart multipart = (MimeMultipart) message.getContent();
+                for (int i = 0; i < multipart.getCount(); i++) {
+                    BodyPart bodyPart = multipart.getBodyPart(i);
+                    if (bodyPart.isMimeType("text/plain")) {
+                        plainTextContent.append(bodyPart.getContent().toString());
+                    }
+                }
+            }
+        }catch (Exception e){e.printStackTrace();}
+        return plainTextContent.toString();
     }
 
     private String extractValue(String json, String key) {
