@@ -1,19 +1,14 @@
-package com.andresv2.apirest.controller;
+package com.andresv2.apirest.service;
 
-import com.google.cloud.secretmanager.v1.AccessSecretVersionRequest;
-import com.google.cloud.secretmanager.v1.SecretManagerServiceClient;
-import com.google.cloud.secretmanager.v1.SecretVersionName;
+import com.google.cloud.secretmanager.v1.*;
 import jakarta.mail.*;
 import jakarta.mail.internet.MimeMultipart;
 import jakarta.mail.search.*;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.MediaType;
 import okhttp3.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -21,20 +16,12 @@ import java.util.Date;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicReference;
 
-@RestController
-@RequestMapping("v1/email")
-public class SecretsGoogleCloud {
-
+@Service
+public class GcpSecretService {
     @Value("${google.secret.email}")
     String emailToRead; // for test the accoutn will be avargas@applab.mx
-    @Value("${spring.cloud.gcp.project-id}")
-    String secretProjectId;
-    @Value("${spring.cloud.secret.Id}")
-    String secret_Id;
-    @Value("${spring.cloud.secret.version}")
-    String secretVersion;
-
-    private String TOKEN = "";
+    @Value("${spring.cloud.secret.url}") //this will be a string to split it on 3 parts ProyectId-SecretId-Version -> Example "18827454519-secretPasswords-latest"
+    String secretUrl;
     // Service Properties
     @Value("${imap.protocol}")
     private String protocol;
@@ -43,15 +30,17 @@ public class SecretsGoogleCloud {
     @Value("${imap.port}")
     private String port;
 
-    @RequestMapping("get")
-    @Produces(MediaType.TEXT_PLAIN)
+    // Project Variables
+    String[] secretManagerProperties;
+    private String TOKEN = "";
+
     public String readEmail(String email) throws Exception {
         if(email != null)
             emailToRead = email;
 
         try {
-            // Obtener las credenciales del Secret Manager
-            JSONArray credentialsJson = new JSONArray(accessSecretVersion(secretProjectId, secret_Id, secretVersion));
+            // Obtener las credenciales del Secret Manager                  projectId                       SecretName                  Version
+            JSONArray credentialsJson = new JSONArray(accessSecretVersion(secretManagerProperties[0], secretManagerProperties[1], secretManagerProperties[2]));
             JSONArray messagess = new JSONArray();
 
             if(credentialsJson.length() < 0)
