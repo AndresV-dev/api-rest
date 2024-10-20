@@ -35,6 +35,7 @@ public class GcpSecretService {
     private String TOKEN = "";
 
     public String readEmail(String email) throws Exception {
+        getSecretProperties(); // This get the properties and save it globally (ProjectId, SecretName, Version)
         if(email != null)
             emailToRead = email;
 
@@ -132,6 +133,35 @@ public class GcpSecretService {
 
             return client.accessSecretVersion(request).getPayload().getData().toStringUtf8();
         }
+    }
+
+    public Boolean createSecret(String proyectId, String secretName, String secretData) throws IOException {
+        getSecretProperties(); // This get the properties and save it globally (ProjectId, SecretName, Version)
+
+        try (SecretManagerServiceClient client = SecretManagerServiceClient.create()) {
+            if (secretName == null || !secretName.matches("[a-zA-Z0-9_]+"))
+                throw new IllegalArgumentException("Invalid Secret Name format. It must match the pattern [a-zA-Z0-9_]+.");
+
+            String parent = "projects/" + (proyectId != null ? proyectId : secretManagerProperties[0]);
+
+            CreateSecretRequest createRequest = CreateSecretRequest.newBuilder()
+                    .setParent(parent)
+                    .setSecretId(secretName)
+                    .setSecret(Secret.newBuilder()
+                            .setReplication(Replication.newBuilder().setAutomatic(Replication.Automatic.newBuilder().build()))
+                            .build())
+                    .build();
+
+            Secret secretCreated = client.createSecret(createRequest);
+
+            return secretCreated != null;
+        }catch (Exception e){e.printStackTrace();}
+
+        return false;
+    }
+
+    private void getSecretProperties(){
+        secretManagerProperties = secretUrl.split("-");
     }
 
     private String getAccessToken(String clientId, String secretClientId, String refreshToken){
