@@ -1,6 +1,8 @@
 package com.andresv2.apirest.service;
 
 import com.google.cloud.secretmanager.v1.*;
+import com.google.protobuf.ByteString;
+import com.google.protobuf.FieldMask;
 import jakarta.mail.*;
 import jakarta.mail.internet.MimeMultipart;
 import jakarta.mail.search.*;
@@ -154,10 +156,33 @@ public class GcpSecretService {
 
             Secret secretCreated = client.createSecret(createRequest);
 
-            return secretCreated != null;
+            SecretVersion addedSecretVersion = createNewSecretVersion(client, secretCreated, secretData);
+
+            return addedSecretVersion != null;
         }catch (Exception e){e.printStackTrace();}
 
         return false;
+    }
+
+    public SecretVersion createNewSecretVersion(SecretManagerServiceClient client, Secret secret, String secretData) {
+        AddSecretVersionRequest secretVersionRequest = AddSecretVersionRequest.newBuilder()
+                .setParent(secret.getName())
+                .setPayload(SecretPayload.newBuilder()
+                        .setData(ByteString.copyFromUtf8(secretData)).build())
+                .build();
+
+        return client.addSecretVersion(secretVersionRequest);
+    }
+
+    public Boolean updateSecret(String proyectId, String secretName, String secretData) throws IOException {
+        getSecretProperties(); // This get the properties and save it globally (ProjectId, SecretName, Version)
+        try (SecretManagerServiceClient client = SecretManagerServiceClient.create()) {
+            Secret secret = client.getSecret(proyectId + "/secrets/" + secretName + "/latest");
+            FieldMask updateMask = FieldMask.newBuilder().addPaths(secretData).build();
+            Secret response = client.updateSecret(secret, updateMask);
+
+            return response != null;
+        }
     }
 
     private void getSecretProperties(){
