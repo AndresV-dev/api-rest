@@ -1,8 +1,8 @@
 package com.andresv2.apirest.service;
 
+import com.andresv2.apirest.entities.result.Result;
 import com.google.cloud.secretmanager.v1.*;
 import com.google.protobuf.ByteString;
-import com.google.protobuf.FieldMask;
 import jakarta.mail.*;
 import jakarta.mail.internet.MimeMultipart;
 import jakarta.mail.search.*;
@@ -33,8 +33,12 @@ public class GcpSecretService {
     private String port;
 
     // Project Variables
+    private final SecretManagerServiceClient client = SecretManagerServiceClient.create();
     String[] secretManagerProperties;
     private String TOKEN = "";
+
+    public GcpSecretService() throws IOException {
+    }
 
     public String readEmail(String email) throws Exception {
         getSecretProperties(); // This get the properties and save it globally (ProjectId, SecretName, Version)
@@ -126,63 +130,77 @@ public class GcpSecretService {
         return "Error on The Process";
     }
 
-    private String accessSecretVersion(String projectId, String secretId, String versionId) throws Exception {
-        try (SecretManagerServiceClient client = SecretManagerServiceClient.create()) {
-            SecretVersionName secretVersionName = SecretVersionName.of(projectId, secretId, versionId);
-            AccessSecretVersionRequest request = AccessSecretVersionRequest.newBuilder()
-                    .setName(secretVersionName.toString())
-                    .build();
+    public String accessSecretVersion(String projectId, String secretId, String versionId) {
+        SecretVersionName secretVersionName = SecretVersionName.of(projectId, secretId, versionId);
+        AccessSecretVersionRequest request = AccessSecretVersionRequest.newBuilder()
+                .setName(secretVersionName.toString())
+                .build();
 
-            return client.accessSecretVersion(request).getPayload().getData().toStringUtf8();
-        }
+        return client.accessSecretVersion(request).getPayload().getData().toStringUtf8();
     }
 
     public Boolean createSecret(String proyectId, String secretName, String secretData) throws IOException {
         getSecretProperties(); // This get the properties and save it globally (ProjectId, SecretName, Version)
 
-        try (SecretManagerServiceClient client = SecretManagerServiceClient.create()) {
-            if (secretName == null || !secretName.matches("[a-zA-Z0-9_]+"))
-                throw new IllegalArgumentException("Invalid Secret Name format. It must match the pattern [a-zA-Z0-9_]+.");
+        if (secretName == null || !secretName.matches("[a-zA-Z0-9_]+"))
+            throw new IllegalArgumentException("Invalid Secret Name format. It must match the pattern [a-zA-Z0-9_]+.");
 
-            String parent = "projects/" + (proyectId != null ? proyectId : secretManagerProperties[0]);
+        String parent = "projects/" + (proyectId != null ? proyectId : secretManagerProperties[0]);
 
-            CreateSecretRequest createRequest = CreateSecretRequest.newBuilder()
-                    .setParent(parent)
-                    .setSecretId(secretName)
-                    .setSecret(Secret.newBuilder()
-                            .setReplication(Replication.newBuilder().setAutomatic(Replication.Automatic.newBuilder().build()))
-                            .build())
-                    .build();
-
-            Secret secretCreated = client.createSecret(createRequest);
-
-            SecretVersion addedSecretVersion = createNewSecretVersion(client, secretCreated, secretData);
-
-            return addedSecretVersion != null;
-        }catch (Exception e){e.printStackTrace();}
-
-        return false;
-    }
-
-    public SecretVersion createNewSecretVersion(SecretManagerServiceClient client, Secret secret, String secretData) {
-        AddSecretVersionRequest secretVersionRequest = AddSecretVersionRequest.newBuilder()
-                .setParent(secret.getName())
-                .setPayload(SecretPayload.newBuilder()
-                        .setData(ByteString.copyFromUtf8(secretData)).build())
+        CreateSecretRequest createRequest = CreateSecretRequest.newBuilder()
+                .setParent(parent)
+                .setSecretId(secretName)
+                .setSecret(Secret.newBuilder()
+                        .setReplication(Replication.newBuilder().setAutomatic(Replication.Automatic.newBuilder().build()))
+                        .build())
                 .build();
 
-        return client.addSecretVersion(secretVersionRequest);
+        Secret secretCreated = client.createSecret(createRequest);
+
+        SecretVersion addedSecretVersion = createNewSecretVersion(secretCreated, secretData);
+
+        return addedSecretVersion != null;
     }
 
-    public Boolean updateSecret(String proyectId, String secretName, String secretData) throws IOException {
-        getSecretProperties(); // This get the properties and save it globally (ProjectId, SecretName, Version)
-        try (SecretManagerServiceClient client = SecretManagerServiceClient.create()) {
-            Secret secret = client.getSecret(proyectId + "/secrets/" + secretName + "/latest");
-            FieldMask updateMask = FieldMask.newBuilder().addPaths(secretData).build();
-            Secret response = client.updateSecret(secret, updateMask);
+    public SecretVersion createNewSecretVersion(Secret secret, String secretData) throws IOException {
+        try {
+            AddSecretVersionRequest secretVersionRequest = AddSecretVersionRequest.newBuilder()
+                    .setParent(secret.getName())
+                    .setPayload(SecretPayload.newBuilder()
+                            .setData(ByteString.copyFromUtf8(secretData)).build())
+                    .build();
 
-            return response != null;
-        }
+            return client.addSecretVersion(secretVersionRequest);
+        }catch (Exception e){e.printStackTrace();}
+        return null;
+    }
+
+    public Result<Secret> getSecret(String projectId, String secretName) {
+        getSecretProperties();
+        try {
+            String secretNameUrl = "projects/" + (projectId != null ? projectId : secretManagerProperties[0]) + "/secrets/" + secretName;
+            Secret secret = client.getSecret(secretNameUrl);
+
+            if(secret != null)
+                return Result.ok(secret);
+
+        }catch (Exception e){return Result.failed("An Error has Ocurred: [" + e.getMessage() + "]");}
+
+        return Result.failed("Secret Not Found");
+    }
+
+    public Result<SecretVersion> getSecretVersion(String projectId, String secretName, String secretVersion) {
+        getSecretProperties();
+        try {
+            SecretVersion secret = client.getSecretVersion("projects/" + (projectId != null ? projectId : secretManagerProperties[0]) + "/secrets/" + secretName + "/versions/" + secretVersion);
+            if(secret != null)
+                return Result.ok(secret);
+
+        }catch (Exception e){
+            e.printStackTrace();
+            return Result.failed("An Error has Ocurred: [" + e.getMessage() + "]");}
+
+        return Result.failed("Secret Not Found");
     }
 
     private void getSecretProperties(){
