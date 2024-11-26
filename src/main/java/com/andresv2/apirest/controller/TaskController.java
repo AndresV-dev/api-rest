@@ -6,6 +6,7 @@ import com.andresv2.apirest.entities.TaskPriority;
 import com.andresv2.apirest.entities.result.Result;
 import com.andresv2.apirest.service.TaskService;
 import com.andresv2.apirest.util.AuthUtilities;
+import com.andresv2.apirest.util.RecursiveMethodsUtils;
 import jakarta.validation.Valid;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +49,12 @@ public class TaskController {
     @PostMapping("list/filtered")
     public ResponseEntity<List<Task>> getListTaskByCollection(@RequestParam(value = "page", required = false) Integer page, @RequestParam(value = "size", required = false) Integer size, @RequestParam(value = "sortBy", required = false) String sortBy, @RequestBody HashMap<String, Object> filterData) throws ParseException {
         try {
-            Pageable pageable = PageRequest.of(page!=null?page:0, size!=null?size:10, Sort.by(sortBy!=null?sortBy:"id").descending());
+            Pageable pageable = PageRequest.of(
+                    page != null ? page : filterData.containsKey("page") ? (Integer) filterData.get("page") : 0,
+                    size != null ? size : filterData.containsKey("size") ? (Integer) filterData.get("size") : 10,
+                    Sort.by(sortBy != null ? sortBy : filterData.containsKey("sortBy") ? (String) filterData.get("sortBy") : "id")
+                            .descending());
+
             return ResponseEntity.ok(taskService.getListTaskByFiltersByUserId(pageable,  AuthUtilities.getCurrentUser().getId(), new JSONObject(filterData)).getContent());
         }catch (Exception e){e.printStackTrace();}
         return ResponseEntity.internalServerError().body(new ArrayList<>());
