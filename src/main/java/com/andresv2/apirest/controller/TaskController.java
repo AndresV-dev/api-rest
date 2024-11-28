@@ -49,21 +49,23 @@ public class TaskController {
     @PostMapping("list/filtered")
     public ResponseEntity<List<Task>> getListTaskByCollection(@RequestParam(value = "page", required = false) Integer page, @RequestParam(value = "size", required = false) Integer size, @RequestParam(value = "sortBy", required = false) String sortBy, @RequestBody HashMap<String, Object> filterData) throws ParseException {
         try {
-            Pageable pageable = PageRequest.of(
+
+            Pageable pageable = RecursiveMethodsUtils.getPageable(filterData, page, size, sortBy);
+/*            Pageable pageable = PageRequest.of(
                     page != null ? page : filterData.containsKey("page") ? (Integer) filterData.get("page") : 0,
                     size != null ? size : filterData.containsKey("size") ? (Integer) filterData.get("size") : 10,
                     Sort.by(sortBy != null ? sortBy : filterData.containsKey("sortBy") ? (String) filterData.get("sortBy") : "id")
                             .descending());
-
+*/
             return ResponseEntity.ok(taskService.getListTaskByFiltersByUserId(pageable,  AuthUtilities.getCurrentUser().getId(), new JSONObject(filterData)).getContent());
         }catch (Exception e){e.printStackTrace();}
         return ResponseEntity.internalServerError().body(new ArrayList<>());
     }
 
     @GetMapping("priority/list")
-    public ResponseEntity<List<TaskPriority>> getTaskPriorityList(@RequestParam(value = "page", required = false) Integer page, @RequestParam(value = "size", required = false) Integer size, @RequestParam(value = "sortBy", required = false) String sortBy){
+    public ResponseEntity<List<TaskPriority>> getTaskPriorityList(@RequestParam(value = "page", required = false) Integer page, @RequestParam(value = "size", required = false) Integer size, @RequestParam(value = "sortBy", required = false) String sortBy, @RequestBody HashMap<String, Object> filterData){
         try {
-            Pageable pageable = PageRequest.of(page!=null?page:0, size!=null?size:10, Sort.by(sortBy!=null?sortBy:"id").descending());
+            Pageable pageable = RecursiveMethodsUtils.getPageable(filterData, page, size, sortBy);
             return ResponseEntity.ok(taskService.getTaskPriorityList(pageable).getContent());
         }catch (Exception e){e.printStackTrace();}
         return ResponseEntity.internalServerError().body(new ArrayList<>());
