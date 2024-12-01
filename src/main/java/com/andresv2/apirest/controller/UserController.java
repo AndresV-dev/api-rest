@@ -4,6 +4,7 @@ import com.andresv2.apirest.entities.CollectionCategory;
 import com.andresv2.apirest.entities.User;
 import com.andresv2.apirest.entities.UserTaskCollection;
 import com.andresv2.apirest.service.UserService;
+import com.andresv2.apirest.util.RecursiveMethodsUtils;
 import jakarta.validation.Valid;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -38,16 +39,16 @@ public class UserController {
     }
 
     @GetMapping("list") // Optional RequestParams, can call endpoint "user/list" or "user/list?page=1&size=10"
-    public ResponseEntity<List<User>> getUserListSorted(@RequestParam(value = "page", required = false) Integer page, @RequestParam(value = "size", required = false) Integer size){
+    public ResponseEntity<List<User>> getUserListSorted(@RequestParam(value = "page", required = false) Integer page, @RequestParam(value = "size", required = false) Integer size,@RequestParam(value = "sortBy", required = false) String sortBy, @RequestBody HashMap<String, Object> data){
 //        logger.info(String.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal()));
-        Pageable pageable = PageRequest.of(page!=null?page:0, size!=null?size:10, Sort.by("id").descending());
+        Pageable pageable = RecursiveMethodsUtils.getPageable(data, page, size, sortBy);
         return ResponseEntity.ok().body(userService.findAll(pageable).getContent());
     }
 
     @PostMapping("filtered/list") // Optional RequestParams, can call endpoint "user/list" or "user/list?page=1&size=10"
-    public ResponseEntity<List<User>> getUserFilteredListSorted(@RequestParam(value = "page", required = false) Integer page, @RequestParam(value = "size", required = false) Integer size, @RequestBody HashMap<String, Object> data){
+    public ResponseEntity<List<User>> getUserFilteredListSorted(@RequestParam(value = "page", required = false) Integer page, @RequestParam(value = "size", required = false) Integer size,@RequestParam(value = "sortBy", required = false) String sortBy, @RequestBody HashMap<String, Object> data){
 //        logger.info(String.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal()));
-        Pageable pageable = PageRequest.of(page!=null?page:0, size!=null?size:10, Sort.by("id").descending());
+        Pageable pageable = RecursiveMethodsUtils.getPageable(data, page, size, sortBy);
         return ResponseEntity.ok().body(userService.findUsersByFilters(pageable, new JSONObject(data)).getContent());
     }
 
@@ -62,16 +63,16 @@ public class UserController {
     }
 
     @GetMapping("collection/list")
-    public ResponseEntity<List<UserTaskCollection>> getListCollectionByUserId(@RequestParam(value = "page", required = false) Integer page, @RequestParam(value = "size", required = false) Integer size) {
+    public ResponseEntity<List<UserTaskCollection>> getListCollectionByUserId(@RequestParam(value = "page", required = false) Integer page, @RequestParam(value = "size", required = false) Integer size,@RequestParam(value = "sortBy", required = false) String sortBy, @RequestBody HashMap<String, Object> data) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Pageable pageable = PageRequest.of(page!=null?page:0, size!=null?size:10, Sort.by("id").descending());
+        Pageable pageable = RecursiveMethodsUtils.getPageable(data, page, size, sortBy);
         return ResponseEntity.ok(userService.getListCollection(user.getId(), pageable).getContent());
     }
 
     @PostMapping("categories/list")
-    public ResponseEntity<List<CollectionCategory>> getListCategoryByUserIdFilters(@RequestParam(value = "page", required = false) Integer page, @RequestParam(value = "size", required = false) Integer size,@RequestBody HashMap<String, Object> data) {
+    public ResponseEntity<List<CollectionCategory>> getListCategoryByUserIdFilters(@RequestParam(value = "page", required = false) Integer page, @RequestParam(value = "size", required = false) Integer size,@RequestParam(value = "sortBy", required = false) String sortBy, @RequestBody HashMap<String, Object> data) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Pageable pageable = PageRequest.of(page!=null?page:0, size!=null?size:10, Sort.by("id").descending());
+        Pageable pageable = RecursiveMethodsUtils.getPageable(data, page, size, sortBy);
         return ResponseEntity.ok(userService.getListCategoriesFilters(user.getId(), new JSONObject(data), pageable).getContent());
     }
 
@@ -92,8 +93,8 @@ public class UserController {
     }
 
     @GetMapping("categories/collection/{id}")
-    public ResponseEntity<List<CollectionCategory>> getListCategoriesByCollection(@RequestParam(value = "page", required = false) Integer page, @RequestParam(value = "size", required = false) Integer size, @PathVariable("id") Long collectionId) {
-        Pageable pageable = PageRequest.of(page!=null?page:0, size!=null?size:10, Sort.by("id").descending());
+    public ResponseEntity<List<CollectionCategory>> getListCategoriesByCollection(@RequestParam(value = "page", required = false) Integer page, @RequestParam(value = "size", required = false) Integer size,@RequestParam(value = "sortBy", required = false) String sortBy, @RequestBody HashMap<String, Object> data, @PathVariable("id") Long collectionId) {
+        Pageable pageable = RecursiveMethodsUtils.getPageable(data, page, size, sortBy);
         return ResponseEntity.ok(userService.getListCategoriesByCollection(collectionId, pageable).getContent());
     }
 

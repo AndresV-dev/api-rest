@@ -2,6 +2,7 @@ package com.andresv2.apirest.controller;
 
 import com.andresv2.apirest.entities.Store;
 import com.andresv2.apirest.service.StoreService;
+import com.andresv2.apirest.util.RecursiveMethodsUtils;
 import jakarta.validation.Valid;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,14 +38,14 @@ public class StoreController {
     }
 
     @GetMapping("list")
-    public ResponseEntity<List<Store>> findStores(@RequestParam(value = "page", required = false) Integer page, @RequestParam(value = "size", required = false) Integer size){
-        Pageable pageable = PageRequest.of(page!=null?page:0, size!=null?size:10, Sort.by("id").descending());
+    public ResponseEntity<List<Store>> findStores(@RequestParam(value = "page", required = false) Integer page, @RequestParam(value = "size", required = false) Integer size,@RequestParam(value = "sortBy", required = false) String sortBy, @RequestBody HashMap<String, Object> filterData){
+        Pageable pageable = RecursiveMethodsUtils.getPageable(filterData, page, size, sortBy);
         return ResponseEntity.ok().body(storeService.findAllStores(pageable).getContent());
     }
 
     @PostMapping("list/filtered")
-    public ResponseEntity<List<Store>> findStores(@RequestParam(value = "page", required = false) Integer page, @RequestParam(value = "size", required = false) Integer size, @RequestBody HashMap<String, Object> data){
-        Pageable pageable = PageRequest.of(page!=null?page:0, size!=null?size:10, Sort.by("id").descending());
+    public ResponseEntity<List<Store>> findStoresFiltered(@RequestParam(value = "page", required = false) Integer page, @RequestParam(value = "size", required = false) Integer size,@RequestParam(value = "sortBy", required = false) String sortBy, @RequestBody HashMap<String, Object> data){
+        Pageable pageable = RecursiveMethodsUtils.getPageable(data, page, size, sortBy);
         return ResponseEntity.ok().body(storeService.findAllFilteredStores(pageable, new JSONObject(data)).getContent());
     }
 
