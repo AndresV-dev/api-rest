@@ -11,9 +11,7 @@ import jakarta.validation.Valid;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,23 +38,17 @@ public class TaskController {
     }
 
     @GetMapping("list")
-    public ResponseEntity<List<Task>> getListTask(@RequestParam(value = "page", required = false) Integer page, @RequestParam(value = "size", required = false) Integer size, @RequestParam(value = "sortBy", required = false) String sortBy) {
-        Pageable pageable = PageRequest.of(page!=null?page:0, size!=null?size:10, Sort.by(sortBy!=null?sortBy:"id").descending());
+    public ResponseEntity<List<Task>> getListTask(@RequestParam(value = "page", required = false) Integer page, @RequestParam(value = "size", required = false) Integer size, @RequestParam(value = "sortBy", required = false) String sortBy, @RequestBody HashMap<String, Object> filterData) {
+        Pageable pageable = RecursiveMethodsUtils.getPageable(filterData, page, size, sortBy);
         Page<Task> a = taskService.getListTaskByUserId(pageable, AuthUtilities.getCurrentUser().getId());
         return ResponseEntity.ok(a.getContent());
     }
 
     @PostMapping("list/filtered")
-    public ResponseEntity<List<Task>> getListTaskByCollection(@RequestParam(value = "page", required = false) Integer page, @RequestParam(value = "size", required = false) Integer size, @RequestParam(value = "sortBy", required = false) String sortBy, @RequestBody HashMap<String, Object> filterData) throws ParseException {
+    public ResponseEntity<List<Task>> getListTaskByCollection(@RequestParam(value = "page", required = false) Integer page, @RequestParam(value = "size", required = false) Integer size, @RequestParam(value = "sortBy", required = false) String sortBy, @RequestBody HashMap<String, Object> filterData) {
         try {
 
             Pageable pageable = RecursiveMethodsUtils.getPageable(filterData, page, size, sortBy);
-/*            Pageable pageable = PageRequest.of(
-                    page != null ? page : filterData.containsKey("page") ? (Integer) filterData.get("page") : 0,
-                    size != null ? size : filterData.containsKey("size") ? (Integer) filterData.get("size") : 10,
-                    Sort.by(sortBy != null ? sortBy : filterData.containsKey("sortBy") ? (String) filterData.get("sortBy") : "id")
-                            .descending());
-*/
             return ResponseEntity.ok(taskService.getListTaskByFiltersByUserId(pageable,  AuthUtilities.getCurrentUser().getId(), new JSONObject(filterData)).getContent());
         }catch (Exception e){e.printStackTrace();}
         return ResponseEntity.internalServerError().body(new ArrayList<>());
